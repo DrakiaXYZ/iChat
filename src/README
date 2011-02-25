@@ -1,0 +1,54 @@
+=============
+ Description
+=============
+Custom chat formatting. 
+Based on the idea of iChat v1.5 by Nijikokun.
+
+Download (Direct JAR): http://thedgtl.net/bukkit/iChat.jar
+Source: https://github.com/TheDgtl/iChat
+
+=============
+ Features
+=============
+Supports Permissions (Both 2.0 and 2.1) as well as GroupManager for Permission handling.
+Allows you to specify a prefix/suffix for users and groups
+A user-specific prefix/suffix will take priority over a group prefix/suffix
+Colors are supported in all parts of the formatting and chat text
+Usable health bar and health amount in the formatting
+Configurable censoring 
+
+=============
+ Formatting
+=============
+Inside plugins/iChat/config.yml you will find the line "message-format"
+This is the line you need to edit to change the format of chat messages, it can contain characters, color codes, and variables.
+To use colors use the standard Minecraft color codes found here: http://www.minecraftwiki.net/wiki/Classic_Server_Protocol#Color_Codes
+
+Available variables:
++prefix - The prefix for this user, or this users group if they don't have one defined.
++suffix - The suffix for this user, or this users group if they don't have one defined.
++name - The users name
++group - The users group
++healthbar - A visual health bar for this user 
++health - The users current health value (Between 0 and 20)
++message - The message the player typed
+
+Example (Default):
+message-format: '[+prefix+group+suffix&f] +name: +message'
+
+=============
+Configuration
+=============
+censor-list - A comma-separated list of single-quoted words to censor, make sure to have [ and ] around the list
+censor-colored - Whether or not to color censored words 
+censor-string-color - The color of normal text, what the plugin sets text after a censored word to
+censor-color - The color code to place before the censored word
+censor-char - The character to replace censored words with
+message-format - The message format as described above
+
+=============
+  Changes
+=============
+[Version 2.00]
+  - Initial re-write of Niji's plugin.
+  - Added Permissions 2.0/2.1, and GroupManager support.
