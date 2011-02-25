@@ -51,6 +51,7 @@ message-format - The message format as described above
 =============
 [Version 2.03]
   - Verify that all available variables aren't null before calling parse
+  - Fixed crash caused by color code at end of message (Basic fix, added a space)
 [Version 2.02]
   - Fix a NPE someone was getting
 [Version 2.01]
