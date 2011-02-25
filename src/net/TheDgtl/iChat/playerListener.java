@@ -21,6 +21,8 @@ public class playerListener extends PlayerListener {
 		String prefix = ichat.getPrefix(p);
 		String suffix = ichat.getSuffix(p);
 		String group = ichat.getGroup(p);
+		if (prefix == null) prefix = "";
+		if (suffix == null) suffix = "";
 		if (group == null) group = "";
 		String healthbar = ichat.healthBar(p);
 		String health = String.valueOf(p.getHealth());

@@ -49,6 +49,8 @@ message-format - The message format as described above
 =============
   Changes
 =============
+[Version 2.03]
+  - Verify that all available variables aren't null before calling parse
 [Version 2.02]
   - Fix a NPE someone was getting
 [Version 2.01]
