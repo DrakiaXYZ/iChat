@@ -210,7 +210,7 @@ public class iChat extends JavaPlugin {
 			return userPrefix;
 		} else if (permissions != null) {
 			// Check for user prefix first
-			String userPrefix = permissions.getHandler().getPermissionString(player.getName(), "prefix");
+			String userPrefix = permissions.getHandler().getUserPermissionString(player.getName(), "prefix");
 			if (userPrefix != null && !userPrefix.isEmpty()) {
 				return userPrefix;
 			}
@@ -234,7 +234,7 @@ public class iChat extends JavaPlugin {
 			return userSuffix;
 		} else if (permissions != null) {
 			// Check for user prefix first
-			String userSuffix = permissions.getHandler().getPermissionString(player.getName(), "suffix");
+			String userSuffix = permissions.getHandler().getUserPermissionString(player.getName(), "suffix");
 			if (userSuffix != null && !userSuffix.isEmpty()) {
 				return userSuffix;
 			}

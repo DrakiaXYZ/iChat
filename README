@@ -49,6 +49,8 @@ message-format - The message format as described above
 =============
   Changes
 =============
+[Version 2.01]
+  - There's a bug in Permissions 2.1 in getPermissionString, switched to getUserPermissionString
 [Version 2.00]
   - Initial re-write of Niji's plugin.
   - Added Permissions 2.0/2.1, and GroupManager support.
