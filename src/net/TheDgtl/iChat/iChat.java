@@ -126,6 +126,7 @@ public class iChat extends JavaPlugin {
 		for (int i = 0; i < search.length; i++) {
 			if (search[i].contains(",")) {
 				for (String s : search[i].split(",")) {
+					if (s == null || replace[i] == null) continue;
 					format = format.replace(s, replace[i]);
 				}
 			} else {
