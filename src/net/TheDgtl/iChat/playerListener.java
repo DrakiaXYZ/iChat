@@ -27,6 +27,8 @@ public class playerListener extends PlayerListener {
 		String healthbar = ichat.healthBar(p);
 		String health = String.valueOf(p.getHealth());
 		
+		// Screwit, adding a space to make color-code glitch not kill us
+		msg = msg + " ";
 		// We're sending this to String.format, so we need to escape those pesky % symbols
 		msg = msg.replaceAll("%", "%%");
 		// Censor message
