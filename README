@@ -49,6 +49,8 @@ message-format - The message format as described above
 =============
   Changes
 =============
+[Version 2.04]
+  - Re-arranged variables, you can now use everything in the suffix/prefix
 [Version 2.03]
   - Verify that all available variables aren't null before calling parse
   - Fixed crash caused by color code at end of message (Basic fix, added a space)

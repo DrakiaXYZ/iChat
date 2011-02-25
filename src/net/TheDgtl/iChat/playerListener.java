@@ -36,8 +36,9 @@ public class playerListener extends PlayerListener {
 		
 		
 		String format = ichat.chatFormat;
-		String[] search = new String[] {"+group,+g", "+name,+n", "+suffix,+s", "+prefix,+p", "+message,+m", "+healthbar,+hb", "+health,+h"};
-		String[] replace = new String[] { group, "%1$s", suffix, prefix, msg, healthbar, health };
+		// Order is important, this allows us to use all variables in the suffix and prefix! But no variables in the message
+		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+name,+n", "+message,+m"};
+		String[] replace = new String[] { suffix, prefix, group, healthbar, health, "%1$s", msg };
 		event.setFormat( ichat.parse(format, search, replace) );
 	}
 }
