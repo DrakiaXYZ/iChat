@@ -16,7 +16,6 @@ import org.bukkit.util.config.Configuration;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class iChat extends JavaPlugin {
-	private GroupManager gm = null;
 	private Permissions permissions = null;
 	private double permVersion = 0;
 	
@@ -40,7 +39,6 @@ public class iChat extends JavaPlugin {
 		config = getConfiguration();
 		
 		if (setupPermissions()) {
-			if (gm != null) log.info("[iChat] Using GroupManager for permissions");
 			if (permissions != null) log.info("[iChat] Using Permissions " + permVersion + " for permissions");
 		} else {
 			log.info("[iChat] Permissions plugins not found, disabling plugin");
@@ -89,16 +87,8 @@ public class iChat extends JavaPlugin {
 	 */
 	private boolean setupPermissions() {
 		Plugin perm;
-		perm = pm.getPlugin("GroupManager");
-		// We're running GroupManager
-		if (perm != null) {
-			if (!perm.isEnabled()) {
-				pm.enablePlugin(perm);
-			}
-			gm = (GroupManager)perm;
-			return true;
-		}
-		
+		// Apparently GM isn't a new permissions plugin, it's Permissions "2.0.1"
+		// API change broke my plugin.
 		perm = pm.getPlugin("Permissions");
 		// We're running Permissions
 		if (perm != null) {
@@ -192,9 +182,7 @@ public class iChat extends JavaPlugin {
 	 * Check whether the player has the given permissions.
 	 */
 	public boolean hasPerm(Player player, String perm, boolean def) {
-		if (gm != null) {
-			return gm.getPermissionHandler().has(player, perm);
-		} else if (permissions != null) {
+		if (permissions != null) {
 			return permissions.getHandler().has(player, perm);
 		} else {
 			return def;
@@ -205,11 +193,7 @@ public class iChat extends JavaPlugin {
 	 * Get the players prefix. Personal prefix takes priority.
 	 */
 	public String getPrefix(Player player) {
-		if (gm != null) {
-			// This goes through the users groups looking for the variable "prefix". Returns null if doesn't exist.
-			String userPrefix = gm.getHandler().getPermissionString(player.getName(), "prefix");
-			return userPrefix;
-		} else if (permissions != null) {
+		if (permissions != null) {
 			// Check for user prefix first
 			String userPrefix = permissions.getHandler().getUserPermissionString(player.getName(), "prefix");
 			if (userPrefix != null && !userPrefix.isEmpty()) {
@@ -229,11 +213,7 @@ public class iChat extends JavaPlugin {
 	 * Get the players suffix. Personal suffix takes priority.
 	 */
 	public String getSuffix(Player player) {
-		if (gm != null) {
-			// This goes through the users groups looking for the variable "prefix". Returns null if doesn't exist.
-			String userSuffix = gm.getHandler().getPermissionString(player.getName(), "suffix");
-			return userSuffix;
-		} else if (permissions != null) {
+		if (permissions != null) {
 			// Check for user prefix first
 			String userSuffix = permissions.getHandler().getUserPermissionString(player.getName(), "suffix");
 			if (userSuffix != null && !userSuffix.isEmpty()) {
@@ -253,10 +233,7 @@ public class iChat extends JavaPlugin {
 	 * Get the players group
 	 */
 	public String getGroup(Player player) {
-		if (gm != null) {
-			String group = gm.getHandler().getGroup(player.getName());
-			return group;
-		} else if (permissions != null) {
+		if (permissions != null) {
 			String group = permissions.getHandler().getGroup(player.getName());
 			return group;
 		}

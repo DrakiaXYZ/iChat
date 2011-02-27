@@ -49,6 +49,8 @@ message-format - The message format as described above
 =============
   Changes
 =============
+[Version 2.05]
+  - Core GM support removed, depends on FakePermissions if you use GM.
 [Version 2.04]
   - Re-arranged variables, you can now use everything in the suffix/prefix
 [Version 2.03]
