@@ -32,6 +32,7 @@ Available variables:
 +healthbar - A visual health bar for this user 
 +health - The users current health value (Between 0 and 20)
 +message - The message the player typed
++world - What world the player is currently in
 
 Example (Default):
 message-format: '[+prefix+group+suffix&f] +name: +message'
@@ -49,6 +50,8 @@ message-format - The message format as described above
 =============
   Changes
 =============
+[Version 2.06]
+  - Added +world/+w tag
 [Version 2.05]
   - Core GM support removed, depends on FakePermissions if you use GM.
 [Version 2.04]
