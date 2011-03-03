@@ -1,5 +1,8 @@
 package net.TheDgtl.iChat;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
@@ -27,6 +30,10 @@ public class playerListener extends PlayerListener {
 		String healthbar = ichat.healthBar(p);
 		String health = String.valueOf(p.getHealth());
 		String world = p.getWorld().getName();
+		// Timestamp support
+		Date now = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat(ichat.dateFormat);
+		String time = dateFormat.format(now);
 		
 		// Screwit, adding a space to make color-code glitch not kill us
 		msg = msg + " ";
@@ -38,8 +45,8 @@ public class playerListener extends PlayerListener {
 		
 		String format = ichat.chatFormat;
 		// Order is important, this allows us to use all variables in the suffix and prefix! But no variables in the message
-		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w","+name,+n", "+message,+m"};
-		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, "%1$s", msg };
+		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+message,+m"};
+		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, "%1$s", msg };
 		event.setFormat( ichat.parse(format, search, replace) );
 	}
 }

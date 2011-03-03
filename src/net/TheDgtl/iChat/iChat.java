@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.anjocaido.groupmanager.GroupManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
@@ -32,6 +31,7 @@ public class iChat extends JavaPlugin {
 	public String chatColor = "&f";
 	public List<String> censorWords = new ArrayList<String>();
 	public String chatFormat = "[+prefix+group+suffix&f] +name: +message";
+	public String dateFormat = "HH:mm:ss";
 	
 	public void onEnable() {
 		pm = getServer().getPluginManager();
@@ -70,6 +70,7 @@ public class iChat extends JavaPlugin {
 		chatColor = config.getString("censor-string-color", chatColor);
 		censorWords = config.getStringList("censor-list", censorWords);
 		chatFormat = config.getString("message-format", chatFormat);
+		dateFormat = config.getString("date-format", dateFormat);
 	}
 	
 	private void defaultConfig() {
@@ -79,6 +80,7 @@ public class iChat extends JavaPlugin {
 		config.setProperty("censor-string-color", chatColor);
 		config.setProperty("censor-list", censorWords);
 		config.setProperty("message-format", chatFormat);
+		config.setProperty("date-format", dateFormat);
 		config.save();
 	}
 
