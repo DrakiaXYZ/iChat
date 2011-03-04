@@ -39,7 +39,7 @@ public class iChat extends JavaPlugin {
 		config = getConfiguration();
 		
 		if (setupPermissions()) {
-			if (permissions != null) log.info("[iChat] Using Permissions " + permVersion + " for permissions");
+			if (permissions != null) log.info("[iChat] Using Permissions " + permVersion + " (" + permissions.version + ") for permissions");
 		} else {
 			log.info("[iChat] Permissions plugins not found, disabling plugin");
 			pm.disablePlugin(this);
@@ -99,7 +99,8 @@ public class iChat extends JavaPlugin {
 			}
 			permissions = (Permissions)perm;
 			try {
-				permVersion = Double.parseDouble(Permissions.version);
+				String[] permParts = Permissions.version.split("\\.");
+				permVersion = Double.parseDouble(permParts[0] + "." + permParts[1]);
 			} catch (Exception e) {
 				log.info("Could not determine Permissions version: " + Permissions.version);
 				return false;
