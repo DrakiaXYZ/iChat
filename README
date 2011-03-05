@@ -51,6 +51,8 @@ message-format - The message format as described above
 =============
   Changes
 =============
+[Version 2.08]
+  - Updated Permissions version detection to only count the first two parts of the version (x.x, not x.x.x)
 [Version 2.07]
   - Added +time/+t tag for timestamp
 [Version 2.06]
