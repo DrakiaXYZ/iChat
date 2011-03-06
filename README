@@ -49,8 +49,17 @@ censor-char - The character to replace censored words with
 message-format - The message format as described above
 
 =============
+ Permissions
+=============
+ichat.color - Allow this group/user to use color in their chat messages.
+
+=============
   Changes
 =============
+[Version 2.10]
+  - Allow admins to enable color on a permissions basis
+[Version 2.09]
+  - Another small update to Permissions (Returned false when I should have returned true)
 [Version 2.08]
   - Updated Permissions version detection to only count the first two parts of the version (x.x, not x.x.x)
 [Version 2.07]

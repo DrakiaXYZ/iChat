@@ -40,7 +40,7 @@ public class playerListener extends PlayerListener {
 		// We're sending this to String.format, so we need to escape those pesky % symbols
 		msg = msg.replaceAll("%", "%%");
 		// Censor message
-		msg = ichat.censor(msg);
+		msg = ichat.censor(p, msg);
 		
 		
 		String format = ichat.chatFormat;

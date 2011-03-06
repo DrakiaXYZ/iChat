@@ -103,7 +103,7 @@ public class iChat extends JavaPlugin {
 				permVersion = Double.parseDouble(permParts[0] + "." + permParts[1]);
 			} catch (Exception e) {
 				log.info("Could not determine Permissions version: " + Permissions.version);
-				return false;
+				return true;
 			}
 			return true;
 		}
@@ -132,8 +132,13 @@ public class iChat extends JavaPlugin {
 	/*
 	 * Replace censored words.
 	 */
-	public String censor(String msg) {
-		if (censorWords == null || censorWords.size() == 0) return msg;
+	public String censor(Player p, String msg) {
+		if (censorWords == null || censorWords.size() == 0) {
+			if (!hasPerm(p, "ichat.color", true))
+				return msg.replaceAll("(&([a-f0-9]))", "");
+			else 
+				return msg;
+		}
 		String[] split = msg.split(" ");
 		StringBuilder out = new StringBuilder();
 		// Loop over all words.
@@ -149,7 +154,10 @@ public class iChat extends JavaPlugin {
 			}
 			out.append(word).append(" ");
 		}
-		return out.toString();
+		if (!hasPerm(p, "ichat.color", true))
+			return out.toString().replaceAll("(&([a-f0-9]))", "");
+		else 
+			return out.toString();
 	}
 	private String star(String word) {
 		StringBuilder out = new StringBuilder();
