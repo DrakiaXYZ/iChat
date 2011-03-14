@@ -56,6 +56,8 @@ ichat.color - Allow this group/user to use color in their chat messages.
 =============
   Changes
 =============
+[Version 2.11]
+  - Now uses per-world permissions information
 [Version 2.10]
   - Allow admins to enable color on a permissions basis
 [Version 2.09]

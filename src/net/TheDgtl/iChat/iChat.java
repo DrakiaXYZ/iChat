@@ -206,14 +206,14 @@ public class iChat extends JavaPlugin {
 	public String getPrefix(Player player) {
 		if (permissions != null) {
 			// Check for user prefix first
-			String userPrefix = permissions.getHandler().getUserPermissionString(player.getName(), "prefix");
+			String userPrefix = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), "prefix");
 			if (userPrefix != null && !userPrefix.isEmpty()) {
 				return userPrefix;
 			}
 			// Check if the group has a prefix.
-			String group = permissions.getHandler().getGroup(player.getName());
+			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
 			if (group == null) return null;
-			String groupPrefix = permissions.getHandler().getGroupPrefix(group);
+			String groupPrefix = permissions.getHandler().getGroupPrefix(player.getWorld().getName(), group);
 			return groupPrefix;
 		}
 		log.severe("[iChat::getPrefix] SEVERE: There is no Permissions module, why are we running?!??!?");
@@ -226,14 +226,14 @@ public class iChat extends JavaPlugin {
 	public String getSuffix(Player player) {
 		if (permissions != null) {
 			// Check for user prefix first
-			String userSuffix = permissions.getHandler().getUserPermissionString(player.getName(), "suffix");
+			String userSuffix = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), "suffix");
 			if (userSuffix != null && !userSuffix.isEmpty()) {
 				return userSuffix;
 			}
 			// Check if the group has a prefix.
-			String group = permissions.getHandler().getGroup(player.getName());
+			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
 			if (group == null) return null;
-			String groupSuffix = permissions.getHandler().getGroupSuffix(group);
+			String groupSuffix = permissions.getHandler().getGroupSuffix(player.getWorld().getName(), group);
 			return groupSuffix;
 		}
 		log.severe("[iChat::getSuffix] SEVERE: There is no Permissions module, why are we running?!??!?");
@@ -245,7 +245,7 @@ public class iChat extends JavaPlugin {
 	 */
 	public String getGroup(Player player) {
 		if (permissions != null) {
-			String group = permissions.getHandler().getGroup(player.getName());
+			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
 			return group;
 		}
 		log.severe("[iChat::getGroup] SEVERE: There is no Permissions module, why are we running?!??!?");
