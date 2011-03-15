@@ -16,8 +16,6 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class iChat extends JavaPlugin {
     private Permissions permissions = null;
-    private double permVersion = 0;
-
     private playerListener pListener = new playerListener(this);
 
     private PluginManager pm;
@@ -39,7 +37,7 @@ public class iChat extends JavaPlugin {
         config = getConfiguration();
 
         if (setupPermissions()) {
-            if (permissions != null) log.info("[iChat] Using Permissions " + permVersion + " (" + Permissions.version + ") for permissions");
+            if (permissions != null) log.info("[iChat] Using Permissions (" + permissions.getDescription().getVersion() + ") for permissions");
         } else {
             log.info("[iChat] Permissions plugins not found, disabling plugin");
             pm.disablePlugin(this);
@@ -88,24 +86,19 @@ public class iChat extends JavaPlugin {
      * Find what Permissions plugin we're using and enable it.
      */
     private boolean setupPermissions() {
-        Plugin perm;
-        // Apparently GM isn't a new permissions plugin, it's Permissions "2.0.1"
-        // API change broke my plugin.
-        perm = pm.getPlugin("Permissions");
-        // We're running Permissions
-        if (perm != null) {
-            if (!perm.isEnabled()) {
-                pm.enablePlugin(perm);
-            }
-            permissions = (Permissions)perm;
+        Plugin plugin = pm.getPlugin("Permissions");
+        if (null != plugin) {
             try {
-                String[] permParts = Permissions.version.split("\\.");
-                permVersion = Double.parseDouble(permParts[0] + "." + permParts[1]);
-            } catch (Exception e) {
-                log.info("Could not determine Permissions version: " + Permissions.version);
+                permissions = (Permissions)plugin;
+                if (!plugin.isEnabled()) {
+                    pm.enablePlugin(plugin);
+                }
                 return true;
             }
-            return true;
+            catch ( ClassCastException e )
+            {
+                permissions = null;
+            }
         }
         // Permissions not loaded
         return false;
