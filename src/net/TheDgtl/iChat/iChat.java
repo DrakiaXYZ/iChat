@@ -22,6 +22,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -127,6 +129,21 @@ public class iChat extends JavaPlugin {
 		}
 		// Permissions not loaded
 		return false;
+	}
+	
+	/*
+	 * Parse given text string for permissions variables
+	 */
+	public String parseVars(String format, Player p) {
+		Pattern pattern = Pattern.compile("\\+\\{(.*?)\\}");
+		Matcher matcher = pattern.matcher(format);
+		StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			String var = getVariable(p, matcher.group(1));
+			matcher.appendReplacement(sb, Matcher.quoteReplacement(var));
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
 	}
 	
 	/*
@@ -256,6 +273,27 @@ public class iChat extends JavaPlugin {
 		}
 		log.severe("[iChat::getSuffix] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
+	}
+	
+	/*
+	 * Get a user/group specific variable. User takes priority
+	 */
+	public String getVariable(Player player, String variable) {
+		if (permissions != null) {
+			// Check for a user variable
+			String userVar = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), variable);
+			if (userVar != null && !userVar.isEmpty()) {
+				return userVar;
+			}
+			// Check for a group variable
+			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
+			if (group == null) return "";
+			String groupVar = permissions.getHandler().getGroupPermissionString(player.getWorld().getName(), group, variable);
+			if (groupVar == null) return "";
+			return groupVar;
+		}
+		log.severe("[iChat::getVariable] SEVERE: There is no Permissions module, why are we running?!!??!?!");
+		return "";
 	}
 	
 	/*

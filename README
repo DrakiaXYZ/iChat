@@ -38,6 +38,26 @@ Available variables:
 Example (Default):
 message-format: '[+prefix+group+suffix&f] +name: +message'
 
+There is now the option of having an unlimited amount of custom variabled in the form of +{varname}
+These variables are defined in the Permissions config file under the 'info' header of either the user or the group, the same as a prefix.
+If these variables contain the static variables such as +prefix, +suffix, +health, etc then those variables will be replaced with their respective values.
+If a variable does not exist then it will be replaced with a blank string.
+
+This example will show the users health where +{var1} is located:
+
+Permissions:
+---------------------
+    Admins:
+        default: false
+        info:
+            prefix: ''
+            suffix: ''
+            var1: '[+health]'
+
+Config:
+---------------------
+message-format: '[+prefix&f] +{var1} +name: +message
+
 =============
 Configuration
 =============
@@ -56,6 +76,9 @@ ichat.color - Allow this group/user to use color in their chat messages.
 =============
   Changes
 =============
+[Version 2.2.0]
+  - Added the ability to have an unlimited amount of variables in message-format
+  - Changed version numbering
 [Version 2.11]
   - Now uses per-world permissions information
 [Version 2.10]
