@@ -35,6 +35,7 @@ public class playerListener extends PlayerListener {
 	
 	@Override
 	public void onPlayerChat(PlayerChatEvent event) {
+		if (ichat.permissions == null) return;
 		Player p = event.getPlayer();
 		String msg = event.getMessage();
 		

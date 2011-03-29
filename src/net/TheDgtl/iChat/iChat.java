@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.event.server.PluginEvent;
+import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -35,10 +38,10 @@ import org.bukkit.util.config.Configuration;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
 public class iChat extends JavaPlugin {
-	private Permissions permissions = null;
-	private double permVersion = 0;
+	public Permissions permissions = null;
 	
 	private playerListener pListener = new playerListener(this);
+	private final sListener serverListener = new sListener();
 	
 	private PluginManager pm;
 	private Logger log;
@@ -58,13 +61,7 @@ public class iChat extends JavaPlugin {
 		log = getServer().getLogger();
 		config = getConfiguration();
 		
-		if (setupPermissions()) {
-			if (permissions != null) log.info("[iChat] Using Permissions " + permVersion + " (" + Permissions.version + ") for permissions");
-		} else {
-			log.info("[iChat] Permissions plugins not found, disabling plugin");
-			pm.disablePlugin(this);
-			return;
-		}
+		permissions = (Permissions)checkPlugin("Permissions");
 		
 		// Create default config if it doesn't exist.
 		if (!(new File(getDataFolder(), "config.yml")).exists()) {
@@ -74,6 +71,8 @@ public class iChat extends JavaPlugin {
 		
 		// Register events
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
+		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
 		
 		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
 	}
@@ -103,32 +102,21 @@ public class iChat extends JavaPlugin {
 		config.setProperty("date-format", dateFormat);
 		config.save();
 	}
-
+	
 	/*
-	 * Find what Permissions plugin we're using and enable it.
+	 * Check if a plugin is loaded/enabled already. Returns the plugin if so, null otherwise
 	 */
-	private boolean setupPermissions() {
-		Plugin perm;
-		// Apparently GM isn't a new permissions plugin, it's Permissions "2.0.1"
-		// API change broke my plugin.
-		perm = pm.getPlugin("Permissions");
-		// We're running Permissions
-		if (perm != null) {
-			if (!perm.isEnabled()) {
-				pm.enablePlugin(perm);
-			}
-			permissions = (Permissions)perm;
-			try {
-				String[] permParts = Permissions.version.split("\\.");
-				permVersion = Double.parseDouble(permParts[0] + "." + permParts[1]);
-			} catch (Exception e) {
-				log.info("Could not determine Permissions version: " + Permissions.version);
-				return true;
-			}
-			return true;
+	private Plugin checkPlugin(String p) {
+		Plugin plugin = pm.getPlugin(p);
+		return checkPlugin(plugin);
+	}
+	
+	private Plugin checkPlugin(Plugin plugin) {
+		if (plugin != null && plugin.isEnabled()) {
+			log.info("[iChat] Found " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
+			return plugin;
 		}
-		// Permissions not loaded
-		return false;
+		return null;
 	}
 	
 	/*
@@ -310,5 +298,25 @@ public class iChat extends JavaPlugin {
 	
 	public Logger getLog() {
 		return log;
+	}
+	
+	// Used for loading plugin dependencies
+	private class sListener extends ServerListener {
+		@Override
+		public void onPluginEnabled(PluginEvent event) {
+			if (permissions == null) {
+				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")) {
+					permissions = (Permissions)checkPlugin(event.getPlugin());
+				}
+			}
+		}
+		
+		@Override
+		public void onPluginDisabled(PluginEvent event) {
+			if (event.getPlugin() == permissions) {
+				log.info("[iChat] Permissions plugin lost.");
+				permissions = null;
+			}
+		}
 	}
 }
