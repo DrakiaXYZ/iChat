@@ -28,7 +28,8 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
-import org.bukkit.event.server.PluginEvent;
+import org.bukkit.event.server.PluginDisableEvent;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -303,7 +304,7 @@ public class iChat extends JavaPlugin {
 	// Used for loading plugin dependencies
 	private class sListener extends ServerListener {
 		@Override
-		public void onPluginEnabled(PluginEvent event) {
+		public void onPluginEnable(PluginEnableEvent event) {
 			if (permissions == null) {
 				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")) {
 					permissions = (Permissions)checkPlugin(event.getPlugin());
@@ -312,7 +313,7 @@ public class iChat extends JavaPlugin {
 		}
 		
 		@Override
-		public void onPluginDisabled(PluginEvent event) {
+		public void onPluginDisable(PluginDisableEvent event) {
 			if (event.getPlugin() == permissions) {
 				log.info("[iChat] Permissions plugin lost.");
 				permissions = null;
