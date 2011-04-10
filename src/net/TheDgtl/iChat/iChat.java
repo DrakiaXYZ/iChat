@@ -228,20 +228,25 @@ public class iChat extends JavaPlugin {
 	 * Get the players prefix. Personal prefix takes priority.
 	 */
 	public String getPrefix(Player player) {
-		if (permissions != null) {
-			// Check for user prefix first
-			String userPrefix = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), "prefix");
-			if (userPrefix != null && !userPrefix.isEmpty()) {
-				return userPrefix;
+		try {
+			if (permissions != null) {
+				// Check for user prefix first
+				String userPrefix = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), "prefix");
+				if (userPrefix != null && !userPrefix.isEmpty()) {
+					return userPrefix;
+				}
+				// Check if the group has a prefix.
+				String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
+				if (group == null) return null;
+				String groupPrefix = permissions.getHandler().getGroupPrefix(player.getWorld().getName(), group);
+				return groupPrefix;
 			}
-			// Check if the group has a prefix.
-			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
-			if (group == null) return null;
-			String groupPrefix = permissions.getHandler().getGroupPrefix(player.getWorld().getName(), group);
-			return groupPrefix;
+			log.severe("[iChat::getPrefix] SEVERE: There is no Permissions module, why are we running?!??!?");
+			return null;
+		} catch (Throwable ex) {
+			log.severe("[iChat::getPrefix] There was an error in Permissions, most likely caused by your config file.");
+			return null;
 		}
-		log.severe("[iChat::getPrefix] SEVERE: There is no Permissions module, why are we running?!??!?");
-		return null;
 	}
 	
 	/*

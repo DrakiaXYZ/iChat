@@ -61,12 +61,11 @@ public class playerListener extends PlayerListener {
 		// Censor message
 		msg = ichat.censor(p, msg);
 		
-		
 		String format = ichat.parseVars(ichat.chatFormat, p);
 		if (format == null) return;
 		// Order is important, this allows us to use all variables in the suffix and prefix! But no variables in the message
-		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+message,+m"};
-		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, "%1$s", msg };
+		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+displayname,+d", "+message,+m"};
+		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, "%1$s", p.getDisplayName(), msg };
 		event.setFormat( ichat.parse(format, search, replace) );
 	}
 }
