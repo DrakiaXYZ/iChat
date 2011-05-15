@@ -19,6 +19,8 @@ package net.TheDgtl.iChat;
  */
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -57,6 +59,9 @@ public class iChat extends JavaPlugin {
 	public String chatFormat = "[+prefix+group+suffix&f] +name: +message";
 	public String dateFormat = "HH:mm:ss";
 	
+	// External interface
+	public static iChat ichat = null;
+	
 	public void onEnable() {
 		pm = getServer().getPluginManager();
 		log = getServer().getLogger();
@@ -74,6 +79,9 @@ public class iChat extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
 		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
+		
+		// Setup external interface
+		iChat.ichat = this;
 		
 		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
 	}
@@ -138,7 +146,7 @@ public class iChat extends JavaPlugin {
 	/*
 	 * Parse a given text string and replace the variables/color codes.
 	 */
-	public String parse(String format, String[] search, String[] replace) {
+	public String replaceVars(String format, String[] search, String[] replace) {
 		if (search.length != replace.length) return "";
 		for (int i = 0; i < search.length; i++) {
 			if (search[i].contains(",")) {
@@ -188,6 +196,42 @@ public class iChat extends JavaPlugin {
 		for (int i = 0; i < word.length(); i++)
 			out.append(censorChar);
 		return out.toString();
+	}
+	
+	/**
+	 * @param p - Player object for chatting
+	 * @param msg - Message to be formatted
+	 * @return - New message format
+	 */
+	public String parseChat(Player p, String msg) {
+		// Variables we can use in a message
+		String prefix = getPrefix(p);
+		String suffix = getSuffix(p);
+		String group = getGroup(p);
+		if (prefix == null) prefix = "";
+		if (suffix == null) suffix = "";
+		if (group == null) group = "";
+		String healthbar = healthBar(p);
+		String health = String.valueOf(p.getHealth());
+		String world = p.getWorld().getName();
+		// Timestamp support
+		Date now = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
+		String time = dateFormat.format(now);
+		
+		// Screwit, adding a space to make color-code glitch not kill us
+		msg = msg + " ";
+		// We're sending this to String.format, so we need to escape those pesky % symbols
+		msg = msg.replaceAll("%", "%%");
+		// Censor message
+		msg = censor(p, msg);
+		
+		String format = parseVars(chatFormat, p);
+		if (format == null) return msg;
+		// Order is important, this allows us to use all variables in the suffix and prefix! But no variables in the message
+		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+displayname,+d", "+message,+m"};
+		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, p.getName(), p.getDisplayName(), msg };
+		return replaceVars(format, search, replace);
 	}
 	
 	/*

@@ -77,6 +77,8 @@ ichat.color - Allow this group/user to use color in their chat messages.
 =============
   Changes
 =============
+[Version 2.3.0]
+  - Added external iChat.ichat.parseChat(Player, String) API
 [Version 2.2.3]
   - Added +displayname/+d for player.getDisplayName()
 [Version 2.2.2]
