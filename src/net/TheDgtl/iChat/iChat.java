@@ -23,11 +23,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.craftbukkit.command.ColouredConsoleSender;
+import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
+//import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -44,10 +46,12 @@ public class iChat extends JavaPlugin {
 	public Permissions permissions = null;
 	
 	private playerListener pListener = new playerListener(this);
-	private final sListener serverListener = new sListener();
+	private final serverListener sListener = new serverListener();
+	//private customListener cListener = new customListener();
 	
 	private PluginManager pm;
-	private Logger log;
+	//private Logger log;
+	public ColouredConsoleSender console = null;
 	Configuration config;
 	
 	// Config variables
@@ -57,6 +61,7 @@ public class iChat extends JavaPlugin {
 	public String chatColor = "&f";
 	public List<String> censorWords = new ArrayList<String>();
 	public String chatFormat = "[+prefix+group+suffix&f] +name: +message";
+	public String meFormat = "* [+prefix+group+suffix&f] +name +message";
 	public String dateFormat = "HH:mm:ss";
 	
 	// External interface
@@ -64,7 +69,7 @@ public class iChat extends JavaPlugin {
 	
 	public void onEnable() {
 		pm = getServer().getPluginManager();
-		log = getServer().getLogger();
+		console = new ColouredConsoleSender((CraftServer)getServer());
 		config = getConfiguration();
 		
 		permissions = (Permissions)checkPlugin("Permissions");
@@ -77,17 +82,19 @@ public class iChat extends JavaPlugin {
 		
 		// Register events
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, serverListener, Priority.Monitor, this);
-		pm.registerEvent(Event.Type.PLUGIN_DISABLE, serverListener, Priority.Monitor, this);
+		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pListener, Event.Priority.Normal, this);
+		pm.registerEvent(Event.Type.PLUGIN_ENABLE, sListener, Priority.Monitor, this);
+		pm.registerEvent(Event.Type.PLUGIN_DISABLE, sListener, Priority.Monitor, this);
+		//pm.registerEvent(Event.Type.CUSTOM_EVENT, cListener, Event.Priority.Normal, this);
 		
 		// Setup external interface
 		iChat.ichat = this;
 		
-		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
+		console.sendMessage(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
 	}
 	
 	public void onDisable() {
-		log.info("[iChat] iChat Disabled");
+		console.sendMessage("[iChat] iChat Disabled");
 	}
 	
 	private void loadConfig() {
@@ -99,6 +106,7 @@ public class iChat extends JavaPlugin {
 		censorWords = config.getStringList("censor-list", censorWords);
 		chatFormat = config.getString("message-format", chatFormat);
 		dateFormat = config.getString("date-format", dateFormat);
+		meFormat = config.getString("me-format", meFormat);
 	}
 	
 	private void defaultConfig() {
@@ -109,6 +117,7 @@ public class iChat extends JavaPlugin {
 		config.setProperty("censor-list", censorWords);
 		config.setProperty("message-format", chatFormat);
 		config.setProperty("date-format", dateFormat);
+		config.setProperty("me-format", meFormat);
 		config.save();
 	}
 	
@@ -122,7 +131,7 @@ public class iChat extends JavaPlugin {
 	
 	private Plugin checkPlugin(Plugin plugin) {
 		if (plugin != null && plugin.isEnabled()) {
-			log.info("[iChat] Found " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
+			console.sendMessage("[iChat] Found " + plugin.getDescription().getName() + " (v" + plugin.getDescription().getVersion() + ")");
 			return plugin;
 		}
 		return null;
@@ -187,9 +196,9 @@ public class iChat extends JavaPlugin {
 			out.append(word).append(" ");
 		}
 		if (!hasPerm(p, "ichat.color", true))
-			return out.toString().replaceAll("(&([a-f0-9]))", "");
+			return out.toString().replaceAll("(&([a-f0-9]))", "").trim();
 		else 
-			return out.toString();
+			return out.toString().trim();
 	}
 	private String star(String word) {
 		StringBuilder out = new StringBuilder();
@@ -201,9 +210,10 @@ public class iChat extends JavaPlugin {
 	/**
 	 * @param p - Player object for chatting
 	 * @param msg - Message to be formatted
+	 * @param chatFormat - The requested chat format string
 	 * @return - New message format
 	 */
-	public String parseChat(Player p, String msg) {
+	public String parseChat(Player p, String msg, String chatFormat) {
 		// Variables we can use in a message
 		String prefix = getPrefix(p);
 		String suffix = getSuffix(p);
@@ -219,8 +229,6 @@ public class iChat extends JavaPlugin {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
 		String time = dateFormat.format(now);
 		
-		// Screwit, adding a space to make color-code glitch not kill us
-		msg = msg + " ";
 		// We're sending this to String.format, so we need to escape those pesky % symbols
 		msg = msg.replaceAll("%", "%%");
 		// Censor message
@@ -232,6 +240,15 @@ public class iChat extends JavaPlugin {
 		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+displayname,+d", "+message,+m"};
 		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, p.getName(), p.getDisplayName(), msg };
 		return replaceVars(format, search, replace);
+	}
+	
+	/**
+	 * @param p - Player object for chatting
+	 * @param msg - Message to be formatted
+	 * @return - New message format
+	 */
+	public String parseChat(Player p, String msg) {
+		return parseChat(p, msg, this.chatFormat);
 	}
 	
 	/*
@@ -284,7 +301,7 @@ public class iChat extends JavaPlugin {
 			String groupPrefix = permissions.getHandler().getGroupPrefix(player.getWorld().getName(), group);
 			return groupPrefix;
 		}
-		log.severe("[iChat::getPrefix] SEVERE: There is no Permissions module, why are we running?!??!?");
+		console.sendMessage("[iChat::getPrefix] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
 	}
 	
@@ -304,7 +321,7 @@ public class iChat extends JavaPlugin {
 			String groupSuffix = permissions.getHandler().getGroupSuffix(player.getWorld().getName(), group);
 			return groupSuffix;
 		}
-		log.severe("[iChat::getSuffix] SEVERE: There is no Permissions module, why are we running?!??!?");
+		console.sendMessage("[iChat::getSuffix] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
 	}
 	
@@ -325,7 +342,7 @@ public class iChat extends JavaPlugin {
 			if (groupVar == null) return "";
 			return groupVar;
 		}
-		log.severe("[iChat::getVariable] SEVERE: There is no Permissions module, why are we running?!!??!?!");
+		console.sendMessage("[iChat::getVariable] SEVERE: There is no Permissions module, why are we running?!!??!?!");
 		return "";
 	}
 	
@@ -337,16 +354,12 @@ public class iChat extends JavaPlugin {
 			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
 			return group;
 		}
-		log.severe("[iChat::getGroup] SEVERE: There is no Permissions module, why are we running?!??!?");
+		console.sendMessage("[iChat::getGroup] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
 	}
 	
-	public Logger getLog() {
-		return log;
-	}
-	
 	// Used for loading plugin dependencies
-	private class sListener extends ServerListener {
+	private class serverListener extends ServerListener {
 		@Override
 		public void onPluginEnable(PluginEnableEvent event) {
 			if (permissions == null) {
@@ -359,9 +372,18 @@ public class iChat extends JavaPlugin {
 		@Override
 		public void onPluginDisable(PluginDisableEvent event) {
 			if (event.getPlugin() == permissions) {
-				log.info("[iChat] Permissions plugin lost.");
+				console.sendMessage("[iChat] Permissions plugin lost.");
 				permissions = null;
 			}
 		}
 	}
+	/*
+	private class customListener extends CustomEventListener {
+		@Override
+		public void onCustomEvent(Event event) {
+			if (event.getEventName().equalsIgnoreCase("iChatMeEvent")) {
+				console.sendMessage("iChat ME Event");
+			}
+		}
+	}*/
 }

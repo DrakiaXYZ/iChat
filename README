@@ -68,6 +68,7 @@ censor-string-color - The color of normal text, what the plugin sets text after 
 censor-color - The color code to place before the censored word
 censor-char - The character to replace censored words with
 message-format - The message format as described above
+me-format - The message format used for /me, follows same format as message-format
 
 =============
  Permissions
@@ -77,6 +78,9 @@ ichat.color - Allow this group/user to use color in their chat messages.
 =============
   Changes
 =============
+[Version 2.3.1]
+  - Added iChat.ichat.parseChat(Player, String, Format) API
+  - Added hook for /me chat formatting using the "me-format" config option
 [Version 2.3.0]
   - Added external iChat.ichat.parseChat(Player, String) API
 [Version 2.2.3]
