@@ -61,7 +61,7 @@ public class iChat extends JavaPlugin {
 	public String chatColor = "&f";
 	public List<String> censorWords = new ArrayList<String>();
 	public String chatFormat = "[+prefix+group+suffix&f] +name: +message";
-	public String meFormat = "* [+prefix+group+suffix&f] +name +message";
+	public String meFormat = "* +name +message";
 	public String dateFormat = "HH:mm:ss";
 	
 	// External interface
