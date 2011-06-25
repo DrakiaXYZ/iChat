@@ -1,3 +1,6 @@
 name: iChat
 main: net.TheDgtl.iChat.iChat
-version: 2.3.1
+version: 2.3.2-p3
+depend: [Permissions]
+author: Drakia
+website: http://thedgtl.net/

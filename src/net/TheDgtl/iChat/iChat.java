@@ -31,10 +31,6 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 //import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +42,6 @@ public class iChat extends JavaPlugin {
 	public Permissions permissions = null;
 	
 	private playerListener pListener = new playerListener(this);
-	private final serverListener sListener = new serverListener();
 	//private customListener cListener = new customListener();
 	
 	private PluginManager pm;
@@ -74,6 +69,13 @@ public class iChat extends JavaPlugin {
 		
 		permissions = (Permissions)checkPlugin("Permissions");
 		
+		// We now depend on Permissions, so disable here if it's not found for some reason
+		if (permissions == null || !checkVersion(permissions, '3')) {
+			console.sendMessage("[iChat] Permissions plugin not found or wrong version. Disabling");
+			pm.disablePlugin(this);
+			return;
+		}
+		
 		// Create default config if it doesn't exist.
 		if (!(new File(getDataFolder(), "config.yml")).exists()) {
 			defaultConfig();
@@ -83,8 +85,6 @@ public class iChat extends JavaPlugin {
 		// Register events
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, sListener, Priority.Monitor, this);
-		pm.registerEvent(Event.Type.PLUGIN_DISABLE, sListener, Priority.Monitor, this);
 		//pm.registerEvent(Event.Type.CUSTOM_EVENT, cListener, Event.Priority.Normal, this);
 		
 		// Setup external interface
@@ -135,6 +135,10 @@ public class iChat extends JavaPlugin {
 			return plugin;
 		}
 		return null;
+	}
+	
+	private boolean checkVersion(Plugin plugin, char Ver) {
+		return (plugin.getDescription().getVersion().charAt(0) == Ver);
 	}
 	
 	/*
@@ -286,40 +290,24 @@ public class iChat extends JavaPlugin {
 	}
 	
 	/*
-	 * Get the players prefix. Personal prefix takes priority.
+	 * Get the players group prefix.
 	 */
 	public String getPrefix(Player player) {
 		if (permissions != null) {
-			// Check for user prefix first
-			String userPrefix = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), "prefix");
-			if (userPrefix != null && !userPrefix.isEmpty()) {
-				return userPrefix;
-			}
-			// Check if the group has a prefix.
-			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
-			if (group == null) return null;
-			String groupPrefix = permissions.getHandler().getGroupPrefix(player.getWorld().getName(), group);
-			return groupPrefix;
+			// Permissions 3 no longer has "User prefixes"
+			return permissions.getHandler().getUserPrefix(player.getWorld().getName(), player.getName());
 		}
 		console.sendMessage("[iChat::getPrefix] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
 	}
 	
 	/*
-	 * Get the players suffix. Personal suffix takes priority.
+	 * Get the players group suffix.
 	 */
 	public String getSuffix(Player player) {
 		if (permissions != null) {
-			// Check for user prefix first
-			String userSuffix = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), "suffix");
-			if (userSuffix != null && !userSuffix.isEmpty()) {
-				return userSuffix;
-			}
-			// Check if the group has a prefix.
-			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
-			if (group == null) return null;
-			String groupSuffix = permissions.getHandler().getGroupSuffix(player.getWorld().getName(), group);
-			return groupSuffix;
+			// Permissions 3 no longer has "User suffixes"
+			return permissions.getHandler().getUserSuffix(player.getWorld().getName(), player.getName());
 		}
 		console.sendMessage("[iChat::getSuffix] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
@@ -331,14 +319,14 @@ public class iChat extends JavaPlugin {
 	public String getVariable(Player player, String variable) {
 		if (permissions != null) {
 			// Check for a user variable
-			String userVar = permissions.getHandler().getUserPermissionString(player.getWorld().getName(), player.getName(), variable);
+			String userVar = permissions.getHandler().getInfoString(player.getWorld().getName(), player.getName(), variable, false);
 			if (userVar != null && !userVar.isEmpty()) {
 				return userVar;
 			}
 			// Check for a group variable
-			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
+			String group = permissions.getHandler().getPrimaryGroup(player.getWorld().getName(), player.getName());
 			if (group == null) return "";
-			String groupVar = permissions.getHandler().getGroupPermissionString(player.getWorld().getName(), group, variable);
+			String groupVar = permissions.getHandler().getInfoString(player.getWorld().getName(), group, variable, true);
 			if (groupVar == null) return "";
 			return groupVar;
 		}
@@ -351,39 +339,10 @@ public class iChat extends JavaPlugin {
 	 */
 	public String getGroup(Player player) {
 		if (permissions != null) {
-			String group = permissions.getHandler().getGroup(player.getWorld().getName(), player.getName());
+			String group = permissions.getHandler().getPrimaryGroup(player.getWorld().getName(), player.getName());
 			return group;
 		}
 		console.sendMessage("[iChat::getGroup] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
 	}
-	
-	// Used for loading plugin dependencies
-	private class serverListener extends ServerListener {
-		@Override
-		public void onPluginEnable(PluginEnableEvent event) {
-			if (permissions == null) {
-				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")) {
-					permissions = (Permissions)checkPlugin(event.getPlugin());
-				}
-			}
-		}
-		
-		@Override
-		public void onPluginDisable(PluginDisableEvent event) {
-			if (event.getPlugin() == permissions) {
-				console.sendMessage("[iChat] Permissions plugin lost.");
-				permissions = null;
-			}
-		}
-	}
-	/*
-	private class customListener extends CustomEventListener {
-		@Override
-		public void onCustomEvent(Event event) {
-			if (event.getEventName().equalsIgnoreCase("iChatMeEvent")) {
-				console.sendMessage("iChat ME Event");
-			}
-		}
-	}*/
 }

@@ -4,13 +4,13 @@
 Custom chat formatting. 
 Based on the idea of iChat v1.5 by Nijikokun.
 
-Download (Direct JAR): http://thedgtl.net/bukkit/iChat.jar
+Download (Direct JAR): http://thedgtl.net/bukkit/iChat-p3.jar
 Source: https://github.com/TheDgtl/iChat
 
 =============
  Features
 =============
-Supports Permissions (Both 2.0 and 2.1) as well as GroupManager for Permission handling.
+Supports Permissions 3.1.x
 Allows you to specify a prefix/suffix for users and groups
 A user-specific prefix/suffix will take priority over a group prefix/suffix
 Colors are supported in all parts of the formatting and chat text
@@ -78,6 +78,8 @@ ichat.color - Allow this group/user to use color in their chat messages.
 =============
   Changes
 =============
+[Version 2.3.2-p3]
+  - Added Permissions 3.x support
 [Version 2.3.1]
   - Added iChat.ichat.parseChat(Player, String, Format) API
   - Added hook for /me chat formatting using the "me-format" config option

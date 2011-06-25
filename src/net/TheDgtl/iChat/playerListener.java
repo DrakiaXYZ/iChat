@@ -33,7 +33,6 @@ public class playerListener extends PlayerListener {
 	
 	@Override
 	public void onPlayerChat(PlayerChatEvent event) {
-		if (ichat.permissions == null) return;
 		if (event.isCancelled()) return;
 		Player p = event.getPlayer();
 		String msg = event.getMessage();
@@ -44,7 +43,6 @@ public class playerListener extends PlayerListener {
 	// Use CommandPreprocess because that's what Justin said.
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		if (ichat.permissions == null) return;
 		if (event.isCancelled()) return;
 		Player p = event.getPlayer();
 		String message = event.getMessage();
