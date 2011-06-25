@@ -31,10 +31,6 @@ import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 //import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +42,6 @@ public class iChat extends JavaPlugin {
 	public Permissions permissions = null;
 	
 	private playerListener pListener = new playerListener(this);
-	private final serverListener sListener = new serverListener();
 	//private customListener cListener = new customListener();
 	
 	private PluginManager pm;
@@ -74,6 +69,13 @@ public class iChat extends JavaPlugin {
 		
 		permissions = (Permissions)checkPlugin("Permissions");
 		
+		// We now depend on Permissions, so disable here if it's not found for some reason
+		if (permissions == null) {
+			console.sendMessage("[iChat] Permissions plugin not found. Disabling");
+			pm.disablePlugin(this);
+			return;
+		}
+		
 		// Create default config if it doesn't exist.
 		if (!(new File(getDataFolder(), "config.yml")).exists()) {
 			defaultConfig();
@@ -83,8 +85,6 @@ public class iChat extends JavaPlugin {
 		// Register events
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLUGIN_ENABLE, sListener, Priority.Monitor, this);
-		pm.registerEvent(Event.Type.PLUGIN_DISABLE, sListener, Priority.Monitor, this);
 		//pm.registerEvent(Event.Type.CUSTOM_EVENT, cListener, Event.Priority.Normal, this);
 		
 		// Setup external interface
@@ -357,26 +357,7 @@ public class iChat extends JavaPlugin {
 		console.sendMessage("[iChat::getGroup] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
 	}
-	
-	// Used for loading plugin dependencies
-	private class serverListener extends ServerListener {
-		@Override
-		public void onPluginEnable(PluginEnableEvent event) {
-			if (permissions == null) {
-				if (event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")) {
-					permissions = (Permissions)checkPlugin(event.getPlugin());
-				}
-			}
-		}
-		
-		@Override
-		public void onPluginDisable(PluginDisableEvent event) {
-			if (event.getPlugin() == permissions) {
-				console.sendMessage("[iChat] Permissions plugin lost.");
-				permissions = null;
-			}
-		}
-	}
+
 	/*
 	private class customListener extends CustomEventListener {
 		@Override
