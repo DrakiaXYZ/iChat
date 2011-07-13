@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.command.ColouredConsoleSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
@@ -70,8 +72,8 @@ public class iChat extends JavaPlugin {
 		permissions = (Permissions)checkPlugin("Permissions");
 		
 		// We now depend on Permissions, so disable here if it's not found for some reason
-		if (permissions == null) {
-			console.sendMessage("[iChat] Permissions plugin not found. Disabling");
+		if (permissions == null || !checkVersion(permissions, '2')) {
+			console.sendMessage("[iChat] Permissions plugin not found or wrong version. Disabling");
 			pm.disablePlugin(this);
 			return;
 		}
@@ -135,6 +137,10 @@ public class iChat extends JavaPlugin {
 			return plugin;
 		}
 		return null;
+	}
+	
+	private boolean checkVersion(Plugin plugin, char Ver) {
+		return (plugin.getDescription().getVersion().charAt(0) == Ver);
 	}
 	
 	/*
@@ -367,4 +373,22 @@ public class iChat extends JavaPlugin {
 			}
 		}
 	}*/
+	
+	/*
+	 * Command Handler
+	 */
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!command.getName().equalsIgnoreCase("ichat")) return false;
+		if (sender instanceof Player && !hasPerm((Player)sender, "ichat.reload", sender.isOp())) {
+			sender.sendMessage("[iChat] Permission Denied");
+			return true;
+		}
+		if (args.length != 1) return false;
+		if (args[0].equalsIgnoreCase("reload")) {
+			loadConfig();
+			sender.sendMessage("[iChat] Config Reloaded");
+			return true;
+		}
+		return false;
+	}
 }
