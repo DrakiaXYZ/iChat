@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.command.ColouredConsoleSender;
 import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
@@ -344,5 +346,33 @@ public class iChat extends JavaPlugin {
 		}
 		console.sendMessage("[iChat::getGroup] SEVERE: There is no Permissions module, why are we running?!??!?");
 		return null;
+	}
+
+	/*
+	private class customListener extends CustomEventListener {
+		@Override
+		public void onCustomEvent(Event event) {
+			if (event.getEventName().equalsIgnoreCase("iChatMeEvent")) {
+				console.sendMessage("iChat ME Event");
+			}
+		}
+	}*/
+	
+	/*
+	 * Command Handler
+	 */
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (!command.getName().equalsIgnoreCase("ichat")) return false;
+		if (sender instanceof Player && !hasPerm((Player)sender, "ichat.reload", sender.isOp())) {
+			sender.sendMessage("[iChat] Permission Denied");
+			return true;
+		}
+		if (args.length != 1) return false;
+		if (args[0].equalsIgnoreCase("reload")) {
+			loadConfig();
+			sender.sendMessage("[iChat] Config Reloaded");
+			return true;
+		}
+		return false;
 	}
 }

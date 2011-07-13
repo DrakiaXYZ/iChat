@@ -74,12 +74,21 @@ me-format - The message format used for /me, follows same format as message-form
  Permissions
 =============
 ichat.color - Allow this group/user to use color in their chat messages.
+ichat.reload - Allow reloading the iChat config
+
+=============
+  Commands
+=============
+/ichat reload - Reload the iChat config file.
 
 =============
   Changes
 =============
+[Version 2.3.3-p3]
+  - Added "/ichat reload" command
 [Version 2.3.2-p3]
   - Added Permissions 3.x support
+  - Added Permissions as a dependency
 [Version 2.3.1]
   - Added iChat.ichat.parseChat(Player, String, Format) API
   - Added hook for /me chat formatting using the "me-format" config option
