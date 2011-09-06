@@ -21,7 +21,9 @@ package net.TheDgtl.iChat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerListener;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class playerListener extends PlayerListener {
 	// Use this for permissions checking.
@@ -33,32 +35,44 @@ public class playerListener extends PlayerListener {
 	
 	@Override
 	public void onPlayerChat(PlayerChatEvent event) {
-		if (ichat.permissions == null) return;
 		if (event.isCancelled()) return;
-		Player p = event.getPlayer();
-		String msg = event.getMessage();
-		
-		event.setFormat( ichat.parseChat(p, msg) + " " );
+		Player player = event.getPlayer();
+		String message = event.getMessage();
+		if (message == null) return;
+		event.setFormat(ichat.API.parseChat(player, message, ichat.chatFormat));
 	}
 	
-	// Use CommandPreprocess because that's what Justin said.
+	@Override
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		ichat.info.addPlayer(event.getPlayer());
+	}
+	
+	@Override
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		ichat.info.removePlayer(event.getPlayer());
+	}
+	
 	@Override
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		if (ichat.permissions == null) return;
+		if (!ichat.handleMe) return;
 		if (event.isCancelled()) return;
-		Player p = event.getPlayer();
-		String message = event.getMessage();
+		Player player = event.getPlayer();
+		String command = event.getMessage();
+		if (command == null) return;
 		
-		if (message.toLowerCase().startsWith("/me ")) {
-			String s = message.substring(message.indexOf(" ")).trim();
-			String formatted = ichat.parseChat(p, s, ichat.meFormat);
-			// Call custom event
-			iChatMeEvent meEvent = new iChatMeEvent(p, s);
+		if (command.toLowerCase().startsWith("/me ")) {
+			String message = command.substring(command.indexOf(" ")).trim();
+			String formatted = ichat.API.parseChat(player, message, ichat.meFormat);
+			
+			// Call iChatMeEvent
+			// TODO: Fix iChatMeEvent
+			iChatMeEvent meEvent = new iChatMeEvent(player, message);
 			ichat.getServer().getPluginManager().callEvent(meEvent);
 			
+			// Display in console, send to players, and cancel event
 			ichat.console.sendMessage(formatted);
-			for (Player t : ichat.getServer().getOnlinePlayers()) {
-				t.sendMessage(formatted);
+			for (Player target : ichat.getServer().getOnlinePlayers()) {
+				target.sendMessage(formatted);
 			}
 			event.setCancelled(true);
 		}

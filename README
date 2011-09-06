@@ -3,6 +3,7 @@
 =============
 Custom chat formatting. 
 Based on the idea of iChat v1.5 by Nijikokun.
+Includes code and concepts from mChat by MiracleM4n <https://github.com/MiracleM4n/mChat/>
 
 Download (Direct JAR): http://thedgtl.net/bukkit/iChat.jar
 Source: https://github.com/TheDgtl/iChat
@@ -10,18 +11,18 @@ Source: https://github.com/TheDgtl/iChat
 =============
  Features
 =============
-Supports Permissions (Both 2.0 and 2.1)
-Allows you to specify a prefix/suffix for users and groups
-A user-specific prefix/suffix will take priority over a group prefix/suffix
-Colors are supported in all parts of the formatting and chat text
-Usable health bar and health amount in the formatting
-Configurable censoring 
+Supports Permissions (Both 2.0 and 2.1), GroupManager, and SuperPerms handlers.
+Allows you to specify a prefix/suffix for users and groups.
+A user-specific prefix/suffix will take priority over a group prefix/suffix.
+Unlimited amount of custom variables for use in chat format.
+Colors are supported in all parts of the formatting and chat text.
+Usable health bar and health amount in the formatting.
 
 =============
  Formatting
 =============
-Inside plugins/iChat/config.yml you will find the line "message-format"
-This is the line you need to edit to change the format of chat messages, it can contain characters, color codes, and variables.
+Message formatting is defined in the file plugins/iChat/config.yml
+The message formats can contain characters, color codes, and variables.
 To use colors use the standard Minecraft color codes found here: http://www.minecraftwiki.net/wiki/Classic_Server_Protocol#Color_Codes
 
 Available variables:
@@ -29,6 +30,7 @@ Available variables:
 +suffix - The suffix for this user, or this users group if they don't have one defined.
 +name - The users name
 +displayname - The users display name (Set by plugins such as Towny)
++iname - The iChat formatted player name (Defined by iname-format) 
 +group - The users group
 +healthbar - A visual health bar for this user 
 +health - The users current health value (Between 0 and 20)
@@ -37,38 +39,39 @@ Available variables:
 +time - Timestamp, configurable in config.yml. Uses the format for SimpleDateFormat - http://bit.ly/dscw40
 
 Example (Default):
-message-format: '[+prefix+group+suffix&f] +name: +message'
+iname-format: '[+prefix+group+suffix&f] +displayname'
+message-format: '+iname: +message'
+me-format: '* +name +message'
+date-format: 'HH:mm:ss'
+handle-me: true
 
-There is now the option of having an unlimited amount of custom variabled in the form of +{varname}
-These variables are defined in the Permissions config file under the 'info' header of either the user or the group, the same as a prefix.
-If these variables contain the static variables such as +prefix, +suffix, +health, etc then those variables will be replaced with their respective values.
+As of iChat 2.4.0 variables are now defined in variables.yml in the iChat directory. This includes prefixes, suffixes, and custom variables.
+You can define an unlimited number of custom variables for groups and users, if these variables contain the static variables such as +prefix, 
++suffix, +health, etc then those variables will be replaced with their respective values.
 If a variable does not exist then it will be replaced with a blank string.
 
 This example will show the users health where +{var1} is located:
 
-Permissions:
+variables.yml:
 ---------------------
-    Admins:
-        default: false
-        info:
-            prefix: ''
-            suffix: ''
-            var1: '[+health]'
+groups:
+    admins:
+        prefix: ''
+        suffix: ''
+        var1: '[+health]'
 
-Config:
+config.yml:
 ---------------------
-message-format: '[+prefix&f] +{var1} +name: +message
+message-format: '[+group&f] +{var1} +displayname: +message
 
 =============
 Configuration
 =============
-censor-list - A comma-separated list of single-quoted words to censor, make sure to have [ and ] around the list
-censor-colored - Whether or not to color censored words 
-censor-string-color - The color of normal text, what the plugin sets text after a censored word to
-censor-color - The color code to place before the censored word
-censor-char - The character to replace censored words with
-message-format - The message format as described above
-me-format - The message format used for /me, follows same format as message-format
+iname-format - The format used for +iname (Default: '[+prefix+group+suffix&f] +displayname')
+message-format - The format used for basic chat (Default: '+iname: +message')
+date-format - The format used for +date (Default: 'HH:mm:ss')
+me-format - The format used for /me commands (Default: '* +name +message')
+handle-me - Whether to handle /me commands (Default: true)
 
 =============
  Permissions
@@ -84,6 +87,13 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.4.0-beta]
+  - Merged all branches into one
+  - Supports Perms 2.x/3.x, SuperPerms, GroupManager
+  - Added a more advanded API based on the mChat API
+  - Massive thanks to MiracleM4n for code and concepts
+  - All variables are now retrieved from variables.yml instead of Permissions
+  - Removed censor code
 [Version 2.3.3]
   - Added Permissions as a dependency
   - Added "/ichat reload" command

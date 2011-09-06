@@ -1,10 +1,9 @@
 name: iChat
 main: net.TheDgtl.iChat.iChat
-version: 2.3.3
-depend: [Permissions]
+version: 2.4.0
 author: Drakia
 website: http://thedgtl.net/
 commands:
   ichat:
     description: Used to reload the plugin.
-    usage: /<command> reload - Used to reload the plugin.
+    usage: /<command> reload - Used to reload iChat's config
