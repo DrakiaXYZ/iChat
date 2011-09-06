@@ -17,6 +17,7 @@ A user-specific prefix/suffix will take priority over a group prefix/suffix.
 Unlimited amount of custom variables for use in chat format.
 Colors are supported in all parts of the formatting and chat text.
 Usable health bar and health amount in the formatting.
+Support for formatting of /me
 
 =============
  Formatting
