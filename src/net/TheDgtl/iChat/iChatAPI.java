@@ -1,0 +1,282 @@
+package net.TheDgtl.iChat;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.plugin.Plugin;
+
+import com.platymuus.bukkit.permissions.Group;
+import com.platymuus.bukkit.permissions.PermissionsPlugin;
+
+public class iChatAPI {
+	private iChat ichat;
+	
+	iChatAPI(iChat ichat) {
+		this.ichat = ichat;
+	}
+	
+	/**
+	 * @param p - Player object that is chatting
+	 * @param msg - Message to be formatted
+	 * @param chatFormat - The requested chat format string
+	 * @return - New message format with variables parsed
+	 */
+	public String parseChat(Player p, String msg, String chatFormat) {
+		return parseChat(p, msg, chatFormat, false);
+	}
+	
+	public String parseChat(Player p, String msg, String chatFormat, Boolean parseName) {
+		// Variables we can use in a message
+		String group = getGroup(p);
+		String prefix = getPrefix(p);
+		String suffix = getSuffix(p);
+		
+		if (prefix == null) prefix = "";
+		if (suffix == null) suffix = "";
+		if (group == null) group = "";
+		
+		String healthbar = healthBar(p);
+		String health = String.valueOf(p.getHealth());
+		String world = p.getWorld().getName();
+		
+		 if (world.contains("_nether"))
+			 world = world.replace("_nether", " Nether");
+		
+		// Timestamp support
+		Date now = new Date();
+		SimpleDateFormat dateFormat = new SimpleDateFormat(ichat.dateFormat);
+		String time = dateFormat.format(now);
+		
+		// We're sending this to String.format, so we need to escape those pesky % symbols
+		msg = msg.replaceAll("%", "%%");
+		
+		// Add coloring if the player has permission
+		if (!checkPermissions(p, "ichat.color")) {
+			msg = msg.replaceAll("(&([a-f0-9]))", "");
+		}
+		
+		String format = parseVars(chatFormat, p);
+		if (format == null) return msg;
+		
+		String iName = p.getDisplayName();
+		if (!parseName) {
+			iName = parseChat(p, "", ichat.iNameFormat, true);
+		}
+		
+		// Order is important, this allows us to use all variables in the suffix and prefix! But no variables in the message
+		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+displayname,+d", "+iname,+in", "+message,+m"};
+		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, p.getName(), p.getDisplayName(), iName, msg };
+		return replaceVars(format, search, replace);
+	}
+	
+	/**
+	 * Permissions handling from mChat by MiracleM4n with modification by Drakia
+	 **/
+	
+    public String parseChat(Player player, String msg) {
+        return parseChat(player, msg, ichat.chatFormat);
+    }
+
+    public String parsePlayerName(Player player) {
+        return parseChat(player, "", ichat.iNameFormat, true);
+    }
+
+    /*
+     * Info Stuff
+     */
+    public String getRawInfo(Player player, String info) {
+    	if (info.equals("group")) {
+	        if (ichat.permissionsB)
+	            return getPermissionsGroup(player);
+	
+	        if (ichat.gmPermissionsB)
+	            return getGroupManagerGroup(player);
+	        
+	        if (ichat.PermissionBuB)
+	        	return getPermBukkitGroup(player);
+	        
+	        return getSuperPermGroup(player);
+    	}
+
+        return getBukkitInfo(player, info);
+    }
+
+    public String getRawPrefix(Player player) {
+        return getRawInfo(player, "prefix");
+    }
+
+    public String getRawSuffix(Player player) {
+        return getRawInfo(player, "suffix");
+    }
+
+    public String getRawGroup(Player player) {
+        return getRawInfo(player, "group");
+    }
+
+    public String getInfo(Player player, String info) {
+        return addColor(getRawInfo(player, info));
+    }
+
+    public String getPrefix(Player player) {
+        return getInfo(player, "prefix");
+    }
+
+    public String getSuffix(Player player) {
+        return getInfo(player, "suffix");
+    }
+
+    public String getGroup(Player player) {
+        return getInfo(player, "group");
+    }
+    
+	/*
+	 * Return a health bar string.
+	 */
+	public String healthBar(Player player) {
+		float maxHealth = 20;
+		float barLength = 10;
+		float health = player.getHealth();
+		int fill = Math.round( (health / maxHealth) * barLength );
+		String barColor = "&2";
+		// 0-40: Red  40-70: Yellow  70-100: Green
+		if (fill <= 4) barColor = "&4";
+		else if (fill <= 7) barColor = "&e";
+		else barColor = "&2";
+
+		StringBuilder out = new StringBuilder();
+		out.append(barColor);
+		for (int i = 0; i < barLength; i++) {
+			if (i == fill) out.append("&8");
+			out.append("|");
+		}
+		out.append("&f");
+		return out.toString();
+	}
+	
+    public String addColor(String string) {
+        return string.replaceAll("(&([a-f0-9]))", "\u00A7$2");
+    }
+    
+    public Boolean checkPermissions(Player player, String node) {
+        if (ichat.permissionsB) {
+            if (ichat.permissions.has(player, node))
+                return true;
+        } else if (ichat.gmPermissionsB) {
+            if (ichat.gmPermissions.has(player, node))
+                return true;
+        } else if (player.hasPermission(node)) {
+              return true;
+        } else if (player.isOp()) {
+            return true;
+        }
+        return false;
+    }
+    
+    /*
+     * Private non-API functions
+     */
+    /*
+     * Bukkit Permission Stuff
+     */
+    private String getBukkitInfo(Player player, String info) {
+    	return ichat.info.getKey(player, info);
+    }
+
+    private String getPermBukkitGroup(Player player) {
+        Plugin pPlugin = ichat.pm.getPlugin("PermissionsBukkit");
+        PermissionsPlugin pBukkit = (PermissionsPlugin)pPlugin;
+        List<Group> pGroups = pBukkit.getGroups(player.getName());
+
+        if (pGroups.isEmpty()) return "";
+
+        return pGroups.get(0).getName();
+    }
+    
+    private String getSuperPermGroup(Player player) {
+    	Set<PermissionAttachmentInfo> perms = player.getEffectivePermissions();
+    	for (PermissionAttachmentInfo perm : perms) {
+    		if (perm.getPermission().startsWith("group.")) {
+    			String group = perm.getPermission().substring(6);
+    			return ichat.info.getKey(group, "name");
+    		}
+    	}
+    	return "";
+    }
+    
+    /*
+     * Permissions Stuff
+     */
+    @SuppressWarnings("deprecation")
+    private String getPermissionsGroup(Player player) {
+        String pName = player.getName();
+        String world = player.getWorld().getName();
+
+        if (ichat.permissions3) {
+            String group = ichat.permissions.getPrimaryGroup(world, pName);
+
+            if (group == null)
+                return "";
+
+            return group;
+        } else {
+            String group = ichat.permissions.getGroup(world, pName);
+
+            if (group == null)
+                return "";
+
+            return group;
+        }
+    }
+
+    /*
+     * GroupManager Stuff
+     */
+    private String getGroupManagerGroup(Player player) {
+        String pName = player.getName();
+        String group = ichat.gmPermissions.getGroup(pName);
+
+        if (group == null)
+            return "";
+
+        return group;
+    }
+	
+	/*
+	 * Parse given text string for permissions variables
+	 */
+    private String parseVars(String format, Player p) {
+		Pattern pattern = Pattern.compile("\\+\\{(.*?)\\}");
+		Matcher matcher = pattern.matcher(format);
+		StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			String var = getRawInfo(p, matcher.group(1));
+			matcher.appendReplacement(sb, Matcher.quoteReplacement(var));
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
+	}
+	
+	/*
+	 * Parse a given text string and replace the variables/color codes.
+	 */
+    private String replaceVars(String format, String[] search, String[] replace) {
+		if (search.length != replace.length) return "";
+		for (int i = 0; i < search.length; i++) {
+			if (search[i].contains(",")) {
+				for (String s : search[i].split(",")) {
+					if (s == null || replace[i] == null) continue;
+					format = format.replace(s, replace[i]);
+				}
+			} else {
+				format = format.replace(search[i], replace[i]);
+			}
+		}
+		return addColor(format);
+	}
+}
