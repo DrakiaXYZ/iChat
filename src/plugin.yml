@@ -1,6 +1,6 @@
 name: iChat
 main: net.TheDgtl.iChat.iChat
-version: 2.4.0
+version: 2.4.0-final
 author: Drakia
 website: http://thedgtl.net/
 commands:

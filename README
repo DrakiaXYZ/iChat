@@ -12,8 +12,8 @@ Source: https://github.com/TheDgtl/iChat
  Features
 =============
 Supports Permissions (Both 2.0 and 2.1), GroupManager, and SuperPerms handlers.
-Allows you to specify a prefix/suffix for users and groups.
-A user-specific prefix/suffix will take priority over a group prefix/suffix.
+Allows you to specify a prefix/suffix/variable for users and groups.
+A user-specific prefix/suffix/variable will take priority over a group prefix/suffix/variable.
 Unlimited amount of custom variables for use in chat format.
 Colors are supported in all parts of the formatting and chat text.
 Usable health bar and health amount in the formatting.
@@ -46,7 +46,19 @@ me-format: '* +name +message'
 date-format: 'HH:mm:ss'
 handle-me: true
 
-As of iChat 2.4.0 variables are now defined in variables.yml in the iChat directory. This includes prefixes, suffixes, and custom variables.
+As of iChat 2.4.0 there have been a few changes in the way variables and groups are handled.
+
+==========
+  Groups  
+==========
+iChat has support for Permissions 2.x/3.x, GroupManager, and PermissionsBukkit native groups. If you are using another permissions plugin,
+you will need to define the players group by giving them the 'group.{name}' node (Example: group.admins: true). You also must make sure that any
+child group unsets this node (group.admins: false) otherwise you will get unexpected results.
+
+==========
+Variables
+==========
+Variables are now defined in variables.yml in the iChat directory. This includes prefixes, suffixes, and custom variables.
 You can define an unlimited number of custom variables for groups and users, if these variables contain the static variables such as +prefix, 
 +suffix, +health, etc then those variables will be replaced with their respective values.
 If a variable does not exist then it will be replaced with a blank string.
@@ -57,6 +69,7 @@ variables.yml:
 ---------------------
 groups:
     admins:
+        name: 'Admin'
         prefix: ''
         suffix: ''
         var1: '[+health]'
@@ -88,6 +101,9 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.4.0-final]
+  - Took out variable caching, there's no hook for PermissionChange.
+  - Updated README to include info on group.* nodes
 [Version 2.4.0-beta]
   - Merged all branches into one
   - Supports Perms 2.x/3.x, SuperPerms, GroupManager
