@@ -20,17 +20,14 @@ package net.TheDgtl.iChat;
  */
 
 import java.io.File;
+import java.util.logging.Logger;
 
-import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.command.ColouredConsoleSender;
-import org.bukkit.craftbukkit.CraftServer;
 import org.bukkit.entity.Player;
 //import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
@@ -44,24 +41,15 @@ public class iChat extends JavaPlugin {
     // Permissions
     public PermissionHandler permissions;
     Boolean permissions3;
-    Boolean permissionsB = false;
 
-    // GroupManager
-    public AnjoPermissionsHandler gmPermissions;
-    Boolean gmPermissionsB = false;
-
-    //SuperPermsBridge
-    Boolean superBridge;
-
-    //PermissionsBukkit
-    Boolean PermissionBuB = false;
+    // Vairable Handler
     public VariableHandler info;
 	
 	// Listeners
 	private playerListener pListener = new playerListener(this);
 	
-	// Coloring and Config
-	public ColouredConsoleSender console = null;
+	// Logging and Config
+	public Logger log;
 	Configuration config;
 	
 	// API
@@ -77,7 +65,8 @@ public class iChat extends JavaPlugin {
 	public void onEnable() {
 		API = new iChatAPI(this);
 		pm = getServer().getPluginManager();
-		console = new ColouredConsoleSender((CraftServer)getServer());
+		// Workaround for pre/post 1192
+		log = getServer().getLogger();
 		config = new Configuration(new File(getDataFolder(), "config.yml"));
 		
 		setupPermissions();
@@ -98,11 +87,11 @@ public class iChat extends JavaPlugin {
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
 		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pListener, Event.Priority.Normal, this);
 		
-		console.sendMessage(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
+		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
 	}
 	
 	public void onDisable() {
-		console.sendMessage("[iChat] iChat Disabled");
+		log.info("[iChat] iChat Disabled");
 	}
 	
 	private void loadConfig() {
@@ -127,63 +116,27 @@ public class iChat extends JavaPlugin {
 	 * Permission Handling Code by MiracleM4n 
 	 */
     private void setupPermissions() {
-        Plugin bPermTest = this.getServer().getPluginManager().getPlugin("bPermissions");
-        Plugin permTest = this.getServer().getPluginManager().getPlugin("Permissions");
-        PluginDescriptionFile pdfFile = getDescription();
-
         if(permissions != null)
             return;
-
-        if(permTest != null) {
-            if (superBridge = permTest.getDescription().getVersion().startsWith("2.7.7")) {
-                System.out.println("[" + pdfFile.getName() + "]" + " Permissions not found, Checking for GroupManager.");
-                permissionsB = false;
-            } else if (bPermTest != null) {
-                System.out.println("[" + pdfFile.getName() + "]" + " Permissions not found, Checking for GroupManager.");
-                permissionsB = false;
-            } else {
-                permissions = ((Permissions) permTest).getHandler();
-                permissionsB = true;
-                permissions3 = permTest.getDescription().getVersion().startsWith("3");
-
-                System.out.println("[" + pdfFile.getName() + "]" + " Permissions " + (permTest.getDescription().getVersion()) + " found hooking in.");
-            }
-        } else {
-            permissionsB = false;
-            permissions3 = false;
-            System.out.println("[" + pdfFile.getName() + "]" + " Permissions not found, Checking for GroupManager.");
-            setupGroupManager();
+        
+        Plugin permTest = this.getServer().getPluginManager().getPlugin("Permissions");
+        
+        // Check to see if Permissions exists
+        if (permTest == null) {
+        	log.info("[iChat] Permissions not found, using SuperPerms");
+        	return;
         }
-    }
-
-    private void setupGroupManager() {
-        Plugin permTest = this.getServer().getPluginManager().getPlugin("GroupManager");
-        PluginDescriptionFile pdfFile = getDescription();
-
-        if(gmPermissions != null)
-            return;
-
-        if (permTest != null) {
-            gmPermissionsB = true;
-            System.out.println("[" + pdfFile.getName() + "]" + " GroupManager " + (permTest.getDescription().getVersion()) + " found hooking in.");
-        } else {
-            gmPermissionsB = false;
-            System.out.println("[" + pdfFile.getName() + "]" + " GroupManager not found, Checking for PermissionsBukkit.");
-            setupPermissionsBukkit();
-        }
-    }
-
-    private void setupPermissionsBukkit() {
-        Plugin PermissionsBukkitTest = this.getServer().getPluginManager().getPlugin("PermissionsBukkit");
-        PluginDescriptionFile pdfFile = getDescription();
-
-        if (PermissionsBukkitTest != null) {
-            PermissionBuB = true;
-            System.out.println("[" + pdfFile.getName() + "]" + " PermissionsBukkit " + (PermissionsBukkitTest.getDescription().getVersion()) + " found hooking in.");
-        } else {
-            PermissionBuB  = false;
-            System.out.println("[" + pdfFile.getName() + "]" + " PermissionsBukkit not found, using superperms.");
-        }
+    	// Check if it's a bridge
+    	if (permTest.getDescription().getVersion().startsWith("2.7.7")) {
+    		log.info("[iChat] Found Permissions Bridge. Using SuperPerms");
+    		return;
+    	}
+    	
+    	// We're using Permissions
+    	permissions = ((Permissions) permTest).getHandler();
+    	// Check for Permissions 3
+    	permissions3 = permTest.getDescription().getVersion().startsWith("3");
+    	log.info("[iChat] Permissions " + permTest.getDescription().getVersion() + " found");
     }
 	
 	/*

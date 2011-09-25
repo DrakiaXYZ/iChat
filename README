@@ -51,7 +51,7 @@ As of iChat 2.4.0 there have been a few changes in the way variables and groups 
 ==========
   Groups  
 ==========
-iChat has support for Permissions 2.x/3.x, GroupManager, and PermissionsBukkit native groups. If you are using another permissions plugin,
+iChat has support for Permissions 2.x/3.x, and PermissionsBukkit native groups. If you are using another permissions plugin,
 you will need to define the players group by giving them the 'group.{name}' node (Example: group.admins: true). You also must make sure that any
 child group unsets this node (group.admins: false) otherwise you will get unexpected results.
 
@@ -101,6 +101,11 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.4.1]
+  - Remove plugin-specific group referencing. All groups are now managed via group.* nodes,
+    the exception being pure Permissions 2.x/3.x
+  - Fixed /ichat reload not reloading variables.yml
+  - Updated /me to use BroadcastMessage
 [Version 2.4.0-final]
   - Took out variable caching, there's no hook for PermissionChange.
   - Updated README to include info on group.* nodes

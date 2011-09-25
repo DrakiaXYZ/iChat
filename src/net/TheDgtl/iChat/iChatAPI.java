@@ -2,17 +2,12 @@ package net.TheDgtl.iChat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.plugin.Plugin;
-
-import com.platymuus.bukkit.permissions.Group;
-import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
 public class iChatAPI {
 	private iChat ichat;
@@ -92,15 +87,9 @@ public class iChatAPI {
      */
     public String getRawInfo(Player player, String info) {
     	if (info.equals("group")) {
-	        if (ichat.permissionsB)
-	            return getPermissionsGroup(player);
-	
-	        if (ichat.gmPermissionsB)
-	            return getGroupManagerGroup(player);
-	        
-	        if (ichat.PermissionBuB)
-	        	return getPermBukkitGroup(player);
-	        
+    		if (ichat.permissions != null) {
+    			return getPermissionsGroup(player);
+    		}
 	        return getSuperPermGroup(player);
     	}
 
@@ -164,14 +153,14 @@ public class iChatAPI {
     }
     
     public Boolean checkPermissions(Player player, String node) {
-        if (ichat.permissionsB) {
+    	// Permissions
+        if (ichat.permissions != null) {
             if (ichat.permissions.has(player, node))
                 return true;
-        } else if (ichat.gmPermissionsB) {
-            if (ichat.gmPermissions.has(player, node))
-                return true;
+        // SuperPerms
         } else if (player.hasPermission(node)) {
               return true;
+        // Op Fallback
         } else if (player.isOp()) {
             return true;
         }
@@ -186,16 +175,6 @@ public class iChatAPI {
      */
     private String getBukkitInfo(Player player, String info) {
     	return ichat.info.getKey(player, info);
-    }
-
-    private String getPermBukkitGroup(Player player) {
-        Plugin pPlugin = ichat.pm.getPlugin("PermissionsBukkit");
-        PermissionsPlugin pBukkit = (PermissionsPlugin)pPlugin;
-        List<Group> pGroups = pBukkit.getGroups(player.getName());
-
-        if (pGroups.isEmpty()) return "";
-
-        return pGroups.get(0).getName();
     }
     
     private String getSuperPermGroup(Player player) {
@@ -232,19 +211,6 @@ public class iChatAPI {
 
             return group;
         }
-    }
-
-    /*
-     * GroupManager Stuff
-     */
-    private String getGroupManagerGroup(Player player) {
-        String pName = player.getName();
-        String group = ichat.gmPermissions.getGroup(pName);
-
-        if (group == null)
-            return "";
-
-        return group;
     }
 	
 	/*

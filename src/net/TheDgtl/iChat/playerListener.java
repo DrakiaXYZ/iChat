@@ -60,10 +60,7 @@ public class playerListener extends PlayerListener {
 			ichat.getServer().getPluginManager().callEvent(meEvent);
 			
 			// Display in console, send to players, and cancel event
-			ichat.console.sendMessage(formatted);
-			for (Player target : ichat.getServer().getOnlinePlayers()) {
-				target.sendMessage(formatted);
-			}
+			ichat.getServer().broadcastMessage(formatted);
 			event.setCancelled(true);
 		}
 	}

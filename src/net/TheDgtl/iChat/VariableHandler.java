@@ -28,6 +28,7 @@ public class VariableHandler {
 		groupVars.clear();
 		userVars.clear();
 		playerVars.clear();
+		config.load();
 		ConfigurationNode groups = config.getNode("groups");
 		if (groups != null) {
 			loadNodes(groups, groupVars);
@@ -134,34 +135,34 @@ public class VariableHandler {
 	 * DEBUG
 	 */
 	public void debug() {
-		ichat.console.sendMessage("[iChat::ih::debug]");
+		ichat.log.info("[iChat::ih::debug]");
 		// Print out all group variables
-		ichat.console.sendMessage("[iChat::ih::debug] Groups");
+		ichat.log.info("[iChat::ih::debug] Groups");
 		for (String group : groupVars.keySet()) {
-			ichat.console.sendMessage("  " + group);
+			ichat.log.info("  " + group);
 			HashMap<String, String> gVars = groupVars.get(group);
 			for (String key : gVars.keySet()) {
-				ichat.console.sendMessage("    " + key + " => " + gVars.get(key));
+				ichat.log.info("    " + key + " => " + gVars.get(key));
 			}
 		}
 		
 		// Print out all user variables
-		ichat.console.sendMessage("[iChat::ih::debug] Users");
+		ichat.log.info("[iChat::ih::debug] Users");
 		for (String user : userVars.keySet()) {
-			ichat.console.sendMessage("  " + user);
+			ichat.log.info("  " + user);
 			HashMap<String, String> uVars = userVars.get(user);
 			for (String key : uVars.keySet()) {
-				ichat.console.sendMessage("    " + key + " => " + uVars.get(key));
+				ichat.log.info("    " + key + " => " + uVars.get(key));
 			}
 		}
 		
 		// Print out all player variables
-		ichat.console.sendMessage("[iChat::ih::debug] Players");
+		ichat.log.info("[iChat::ih::debug] Players");
 		for (String player : playerVars.keySet()) {
-			ichat.console.sendMessage("  " + player);
+			ichat.log.info("  " + player);
 			HashMap<String, String> pVars = playerVars.get(player);
 			for (String key : pVars.keySet()) {
-				ichat.console.sendMessage("    " + key + " => " + pVars.get(key));
+				ichat.log.info("    " + key + " => " + pVars.get(key));
 			}
 		}
 	}
