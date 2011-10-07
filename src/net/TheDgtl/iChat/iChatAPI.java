@@ -180,7 +180,8 @@ public class iChatAPI {
     private String getSuperPermGroup(Player player) {
     	Set<PermissionAttachmentInfo> perms = player.getEffectivePermissions();
     	for (PermissionAttachmentInfo perm : perms) {
-    		if (perm.getPermission().startsWith("group.")) {
+    		if (perm.getPermission().startsWith("group.")
+                     && perm.getValue() == true) {
     			String group = perm.getPermission().substring(6);
     			return ichat.info.getKey(group, "name");
     		}
