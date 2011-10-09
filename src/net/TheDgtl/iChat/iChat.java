@@ -20,6 +20,7 @@ package net.TheDgtl.iChat;
  */
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
@@ -44,6 +45,9 @@ public class iChat extends JavaPlugin {
 
     // Vairable Handler
     public VariableHandler info;
+    
+    // Player Connect Time List
+    public HashMap<String, Long> connectList;
 	
 	// Listeners
 	private playerListener pListener = new playerListener(this);
@@ -79,6 +83,8 @@ public class iChat extends JavaPlugin {
 		
 		info = new VariableHandler(this);
 		info.loadConfig();
+		
+		connectList = new HashMap<String, Long>();
 		for (Player player : getServer().getOnlinePlayers()) {
 			info.addPlayer(player);
 		}

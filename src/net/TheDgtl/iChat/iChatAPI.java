@@ -70,6 +70,33 @@ public class iChatAPI {
 		return replaceVars(format, search, replace);
 	}
 	
+	public Long getConnectTime(Player p) {
+		Long conTime = ichat.connectList.get(p.getName());
+		if (conTime == null) return -1L;
+		return conTime;
+	}
+	
+	public Long getOnlineTime(Player p) {
+		Long conTime = getConnectTime(p);
+		if (conTime == null) return -1L;
+		Long onTime = (System.currentTimeMillis() / 1000L) - conTime;
+		return onTime;
+	}
+	
+	public String prettyTime(Long time) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(time % 60).append("s");
+		if (time >= 60) {
+			Long min = time / 60;
+			sb.insert(0, " " + min % 60 + "m");
+		}
+		if (time >= 3600) {
+			Long hour = time / 3600;
+			sb.insert(0, " " + hour + "h");
+		}
+		return sb.toString();
+	}
+	
 	/**
 	 * Permissions handling from mChat by MiracleM4n with modification by Drakia
 	 **/
@@ -180,7 +207,8 @@ public class iChatAPI {
     private String getSuperPermGroup(Player player) {
     	Set<PermissionAttachmentInfo> perms = player.getEffectivePermissions();
     	for (PermissionAttachmentInfo perm : perms) {
-    		if (perm.getPermission().startsWith("group.")) {
+    		if (perm.getPermission().startsWith("group.") &&
+    				perm.getValue()) {
     			String group = perm.getPermission().substring(6);
     			return ichat.info.getKey(group, "name");
     		}
