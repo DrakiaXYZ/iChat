@@ -41,15 +41,16 @@ public class VariableHandler {
 	}
 	
 	public void addPlayer(Player player) {
-		String group = ichat.API.getGroup(player);
-		if (group == null) return;
-		group = group.toLowerCase();
-		
 		HashMap<String, String> tmpList = new HashMap<String, String>();
-		if (!group.isEmpty()) {
-			HashMap<String, String> gVars = groupVars.get(group);
-			if (gVars != null)
-				tmpList.putAll(gVars);
+		
+		String group = ichat.API.getGroup(player);		
+		if (group != null && !group.isEmpty()) {
+			group = group.toLowerCase();
+			if (!group.isEmpty()) {
+				HashMap<String, String> gVars = groupVars.get(group);
+				if (gVars != null)
+					tmpList.putAll(gVars);
+			}
 		}
 		
 		HashMap<String, String> uVars = userVars.get(player.getName().toLowerCase());

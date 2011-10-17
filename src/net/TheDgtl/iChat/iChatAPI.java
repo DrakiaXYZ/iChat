@@ -2,12 +2,21 @@ package net.TheDgtl.iChat;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
+
+import ru.tehkode.permissions.PermissionGroup;
+import ru.tehkode.permissions.PermissionUser;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
+
+import com.platymuus.bukkit.permissions.Group;
+
+import de.bananaco.permissions.interfaces.PermissionSet;
 
 public class iChatAPI {
 	private iChat ichat;
@@ -114,13 +123,22 @@ public class iChatAPI {
      */
     public String getRawInfo(Player player, String info) {
     	if (info.equals("group")) {
+    		if (ichat.bPermMan != null) {
+    			return getbPermGroup(player);
+    		}
+    		if (ichat.pbPlug != null) {
+    			return getPermBGroup(player);
+    		}
+    		if (ichat.pexPlug != null) {
+    			return getPexGroup(player);
+    		}
     		if (ichat.permissions != null) {
     			return getPermissionsGroup(player);
     		}
 	        return getSuperPermGroup(player);
     	}
 
-        return getBukkitInfo(player, info);
+        return getVariable(player, info);
     }
 
     public String getRawPrefix(Player player) {
@@ -200,8 +218,31 @@ public class iChatAPI {
     /*
      * Bukkit Permission Stuff
      */
-    private String getBukkitInfo(Player player, String info) {
+    private String getVariable(Player player, String info) {
     	return ichat.info.getKey(player, info);
+    }
+    
+    private String getbPermGroup(Player player) {
+    	PermissionSet ps = ichat.bPermMan.getPermissionSet(player.getWorld().getName());
+    	List<String> groups = ps.getGroups(player.getName());
+    	if (groups.size() == 0) return "";
+    	return groups.get(0);
+    }
+    
+    private String getPermBGroup(Player player) {
+    	// Because of a softdepend issue in Bukkit, this plugin may not be enabled
+    	if (!ichat.pbPlug.isEnabled()) return "";
+    	List<Group> groups = ichat.pbPlug.getGroups(player.getName());
+    	if (groups.size() == 0) return "";
+    	return groups.get(0).getName();
+    }
+    
+    private String getPexGroup(Player player) {
+    	PermissionUser user = PermissionsEx.getUser(player);
+    	if (user == null) return "";
+    	PermissionGroup[] groups = user.getGroups(player.getWorld().getName());
+    	if (groups.length == 0) return "";
+    	return groups[0].getName();
     }
     
     private String getSuperPermGroup(Player player) {

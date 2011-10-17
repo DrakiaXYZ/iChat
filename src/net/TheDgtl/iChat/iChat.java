@@ -33,15 +33,26 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
 
+import ru.tehkode.permissions.bukkit.PermissionsEx;
+
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import com.platymuus.bukkit.permissions.PermissionsPlugin;
+
+import de.bananaco.permissions.worlds.WorldPermissionsManager;
 
 public class iChat extends JavaPlugin {
 	public PluginManager pm;
 	
     // Permissions
     public PermissionHandler permissions;
-    Boolean permissions3;
+    public boolean permissions3;
+    // bPermissions (PermissionSet)
+    public WorldPermissionsManager bPermMan;
+    // PermissionsBukkit (Group)
+    public PermissionsPlugin pbPlug;
+    // PEX (PermissionUser)
+    public PermissionsEx pexPlug;
 
     // Vairable Handler
     public VariableHandler info;
@@ -118,31 +129,47 @@ public class iChat extends JavaPlugin {
 		config.save();
 	}
 	
-	/*
-	 * Permission Handling Code by MiracleM4n 
-	 */
     private void setupPermissions() {
-        if(permissions != null)
-            return;
-        
-        Plugin permTest = this.getServer().getPluginManager().getPlugin("Permissions");
-        
-        // Check to see if Permissions exists
-        if (permTest == null) {
-        	log.info("[iChat] Permissions not found, using SuperPerms");
-        	return;
-        }
-    	// Check if it's a bridge
-    	if (permTest.getDescription().getVersion().startsWith("2.7.7")) {
-    		log.info("[iChat] Found Permissions Bridge. Using SuperPerms");
+    	// Setup already
+    	if (permissions != null || bPermMan != null || pbPlug != null || pexPlug != null) return;
+    	Plugin tmp = null;
+    	PluginManager pm = getServer().getPluginManager();
+    	
+    	// Check for bPerms first
+    	tmp = pm.getPlugin("bPermissions");
+    	if (tmp != null && tmp.isEnabled()) {
+    		log.info("[iChat] Found bPermissions v" + tmp.getDescription().getVersion());
+    		bPermMan = de.bananaco.permissions.Permissions.getWorldPermissionsManager();
     		return;
     	}
     	
-    	// We're using Permissions
-    	permissions = ((Permissions) permTest).getHandler();
-    	// Check for Permissions 3
-    	permissions3 = permTest.getDescription().getVersion().startsWith("3");
-    	log.info("[iChat] Permissions " + permTest.getDescription().getVersion() + " found");
+    	// Check for PermBukkit next
+    	tmp = pm.getPlugin("PermissionsBukkit");
+    	if (tmp != null) {
+    		log.info("[iChat] Found PermissionsBukkit v" + tmp.getDescription().getVersion());
+    		pbPlug = (PermissionsPlugin)tmp;
+    		return;
+    	}
+    	
+    	// Then PEX
+    	tmp = pm.getPlugin("PermissionsEx");
+    	if (tmp != null && tmp.isEnabled()) {
+    		log.info("[iChat] Found PermissionsEx v" + tmp.getDescription().getVersion());
+    		pexPlug = (PermissionsEx)tmp;
+    		return;
+    	}
+    	
+    	// Finally Permissions (This avoids catching bridges)
+        tmp = pm.getPlugin("Permissions");
+        if (tmp != null && tmp.isEnabled()) {
+        	log.info("[iChat] Found Permissions v" + tmp.getDescription().getVersion());
+	    	permissions = ((Permissions) tmp).getHandler();
+	    	permissions3 = tmp.getDescription().getVersion().startsWith("3");
+	    	return;
+        }
+        
+    	log.info("[iChat] Permissions not found, using SuperPerms");
+    	return;
     }
 	
 	/*

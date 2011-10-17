@@ -101,6 +101,8 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.4.3]
+  - Permissions overhaul. No longer require group.{name} node unless not using a permissions handler
 [Version 2.4.2]
   - Fixed issue with inheritance in Permissions
   - Implemented start of online time variable. Need output format.
