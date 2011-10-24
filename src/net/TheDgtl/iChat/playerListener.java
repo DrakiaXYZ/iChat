@@ -53,6 +53,7 @@ public class playerListener extends PlayerListener {
 		if (command == null) return;
 		
 		if (command.toLowerCase().startsWith("/me ")) {
+			ichat.info.addPlayer(player);
 			String message = command.substring(command.indexOf(" ")).trim();
 			String formatted = ichat.API.parseChat(player, message, ichat.meFormat);
 			
