@@ -1,20 +1,25 @@
 package net.TheDgtl.iChat;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
-import java.util.TreeMap;
 
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
 public class VariableHandler {
 	private iChat ichat;
-	private Configuration config;
+	private YamlConfiguration newConfig;
 	
-	// Values loaded from config
+	// Values loaded from config -- Global
 	private HashMap<String, HashMap<String, String>> groupVars = new HashMap<String, HashMap<String, String>>();
 	private HashMap<String, HashMap<String, String>> userVars = new HashMap<String, HashMap<String, String>>();
+	
+	// Values loaded from config -- Per World
+	private HashMap<String, HashMap<String, HashMap<String, String>>> wGroupVars = new HashMap<String, HashMap<String, HashMap<String, String>>>();
+	private HashMap<String, HashMap<String, HashMap<String, String>>> wUserVars = new HashMap<String, HashMap<String, HashMap<String, String>>>();
 	
 	// Dynamically assigned on connect/reload
 	private HashMap<String, HashMap<String, String>> playerVars = new HashMap<String, HashMap<String, String>>();
@@ -22,40 +27,101 @@ public class VariableHandler {
 	public VariableHandler(iChat ichat) {
 		this.ichat = ichat;
 		checkConfig();
+		loadConfig();
+	}
+	
+	/*
+	 * Check to see if variables.yml exists
+	 */
+	public void checkConfig() {
+		File vFile = new File(ichat.getDataFolder(), "variables.yml");
+		// Variables exists, don't touch it!
+		if (vFile.exists()) return;
+		// Copy defaults to variables.yml
+		newConfig = YamlConfiguration.loadConfiguration(vFile);
+		newConfig.options().copyDefaults(true);
+		InputStream defConfigStream = iChat.class.getClassLoader().getResourceAsStream("variables.yml");
+		if (defConfigStream != null) {
+			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+			
+			newConfig.setDefaults(defConfig);
+			
+			try {
+				newConfig.save(vFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public void loadConfig() {
 		groupVars.clear();
 		userVars.clear();
 		playerVars.clear();
-		config.load();
-		ConfigurationNode groups = config.getNode("groups");
-		if (groups != null) {
-			loadNodes(groups, groupVars);
-		}
+		wGroupVars.clear();
+		wUserVars.clear();
 		
-		ConfigurationNode users = config.getNode("users");
-		if (users != null) {
-			loadNodes(users, userVars);
+		reloadConfig();
+		
+		// Loop through nodes, "groups" and "users" are special cases, everything else is a world
+		for (String key : newConfig.getKeys(false)) {
+			if (key.equals("groups")) {
+				ConfigurationSection groups = newConfig.getConfigurationSection("groups");
+				loadNodes(groups, groupVars);
+				continue;
+			}
+			if (key.equals("users")) {
+				ConfigurationSection users = newConfig.getConfigurationSection("users");
+				loadNodes(users, userVars);
+				continue;
+			}
+			
+			ConfigurationSection groups = newConfig.getConfigurationSection(key + ".groups");
+			if (groups != null) {
+				HashMap<String, HashMap<String, String>> wGroups = new HashMap<String, HashMap<String, String>>();
+				loadNodes(groups, wGroups);
+				wGroupVars.put(key, wGroups);
+			}
+			
+			ConfigurationSection users = newConfig.getConfigurationSection(key + ".users");
+			if (users != null) {
+				HashMap<String, HashMap<String, String>> wUsers = new HashMap<String, HashMap<String, String>>();
+				loadNodes(users, wUsers);
+				wUserVars.put(key, wUsers);
+			}
+			
 		}
 	}
 	
 	public void addPlayer(Player player) {
 		HashMap<String, String> tmpList = new HashMap<String, String>();
 		
-		String group = ichat.API.getGroup(player);		
+		String group = ichat.API.getGroup(player);
 		if (group != null && !group.isEmpty()) {
 			group = group.toLowerCase();
-			if (!group.isEmpty()) {
-				HashMap<String, String> gVars = groupVars.get(group);
-				if (gVars != null)
-					tmpList.putAll(gVars);
+			HashMap<String, String> gVars = groupVars.get(group);
+			if (gVars != null)
+				tmpList.putAll(gVars);
+			
+			// Check if this group has world-specific vars
+			HashMap<String, HashMap<String, String>> wVars = wGroupVars.get(player.getWorld().getName());
+			if (wVars != null) {
+				HashMap<String, String> wgVars = wVars.get(group);
+				if (wgVars != null)
+					tmpList.putAll(wgVars);
 			}
 		}
 		
 		HashMap<String, String> uVars = userVars.get(player.getName().toLowerCase());
 		if (uVars != null)
 			tmpList.putAll(uVars);
+		
+		HashMap<String, HashMap<String, String>> wVars = wUserVars.get(player.getWorld().getName());
+		if (wVars != null) {
+			HashMap<String, String> wuVars = wVars.get(player.getName().toLowerCase());
+			if (wuVars != null)
+				tmpList.putAll(wuVars);
+		}
 		
 		playerVars.put(player.getName().toLowerCase(), tmpList);
 	}
@@ -80,50 +146,25 @@ public class VariableHandler {
 		return var;
 	}
 
-	private void checkConfig() {
+	private void reloadConfig() {
 		File vFile = new File(ichat.getDataFolder(), "variables.yml");
-		config = new Configuration(vFile);
 		if (!vFile.exists()) {
-			config.setHeader(
-				"# iChat Variable Config",
-				"# This is now the only method for defining variables"
-			);
-			
-			TreeMap<String, Object> defaultGroups = new TreeMap<String, Object>();
-			TreeMap<String, Object> defaultGroupAdmin = new TreeMap<String, Object>();
-			TreeMap<String, Object> defaultGroupDefault = new TreeMap<String, Object>();
-			defaultGroupAdmin.put("prefix", "&c");
-			defaultGroupAdmin.put("suffix", "");
-			defaultGroupAdmin.put("name", "Admin");
-			defaultGroups.put("admin", defaultGroupAdmin);
-			
-			defaultGroupDefault.put("prefix", "");
-			defaultGroupDefault.put("suffix", "");
-			defaultGroupDefault.put("name", "Guest");
-			defaultGroups.put("default", defaultGroupDefault);
-			config.setProperty("groups", defaultGroups);
-			
-			TreeMap<String, Object> defaultUsers = new TreeMap<String, Object>();
-			TreeMap<String, Object> defaultUserDrakia = new TreeMap<String, Object>();
-			defaultUserDrakia.put("prefix", "&e");
-			defaultUsers.put("drakia", defaultUserDrakia);
-			config.setProperty("users", defaultUsers);
-			
-			config.save();
+			ichat.log.info("[iChat] variables.yml does not exist. Please create it.");
+			return;
 		}
-		config.load();
+		newConfig = YamlConfiguration.loadConfiguration(vFile);
 	}
 	
 	/*
 	 * Load the nodes from root into map
 	 */
-	private void loadNodes(ConfigurationNode root, HashMap<String, HashMap<String, String>> map) {
-		for (String key : root.getKeys()) {
+	private void loadNodes(ConfigurationSection root, HashMap<String, HashMap<String, String>> map) {
+		for (String key : root.getKeys(false)) {
 			HashMap<String, String> tmpList = new HashMap<String, String>();
-			ConfigurationNode vars = root.getNode(key);
+			ConfigurationSection vars = root.getConfigurationSection(key);
 			if (vars == null) continue;
 			// Store vars
-			for (String vKey : vars.getKeys()) {
+			for (String vKey : vars.getKeys(false)) {
 				String value = vars.getString(vKey);
 				if (value == null) continue;
 				tmpList.put(vKey.toLowerCase(),  value);

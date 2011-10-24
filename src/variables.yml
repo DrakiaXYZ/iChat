@@ -1,0 +1,16 @@
+# iChat Variable Config
+# This is now the only method for defining variables
+users:
+    Drakia:
+        prefix: '&e'
+groups:
+    Admin:
+        prefix: '&c'
+        suffix: ''
+    Default:
+        prefix: ''
+        suffix: ''
+world:
+  users:
+    Drakia:
+      prefix: '&a'

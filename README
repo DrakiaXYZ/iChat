@@ -11,7 +11,7 @@ Source: https://github.com/TheDgtl/iChat
 =============
  Features
 =============
-Supports Permissions (Both 2.0 and 2.1), GroupManager, and SuperPerms handlers.
+Supports Permissions (Both 2.0 and 2.1), and SuperPerms handlers (PermissionsBukkit, bPermissions, and PermissionsEx).
 Allows you to specify a prefix/suffix/variable for users and groups.
 A user-specific prefix/suffix/variable will take priority over a group prefix/suffix/variable.
 Unlimited amount of custom variables for use in chat format.
@@ -51,9 +51,7 @@ As of iChat 2.4.0 there have been a few changes in the way variables and groups 
 ==========
   Groups  
 ==========
-iChat has support for Permissions 2.x/3.x, and PermissionsBukkit native groups. If you are using another permissions plugin,
-you will need to define the players group by giving them the 'group.{name}' node (Example: group.admins: true). You also must make sure that any
-child group unsets this node (group.admins: false) otherwise you will get unexpected results.
+As of iChat 2.4.3 native groups are supported in Permissions 2.x/3.x, PermissionsBukkit, bPermissions, and PermissionsEx.
 
 ==========
 Variables
@@ -69,7 +67,6 @@ variables.yml:
 ---------------------
 groups:
     admins:
-        name: 'Admin'
         prefix: ''
         suffix: ''
         var1: '[+health]'
@@ -101,6 +98,10 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.4.4]
+  - Updated to new FileConfiguration class
+  - Fixed bypass exploit for colors in messages
+  - Multi-world support for variables.yml
 [Version 2.4.3]
   - Permissions overhaul. No longer require group.{name} node unless not using a permissions handler
 [Version 2.4.2]

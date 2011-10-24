@@ -20,18 +20,19 @@ package net.TheDgtl.iChat;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 //import org.bukkit.event.CustomEventListener;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
 
 import ru.tehkode.permissions.bukkit.PermissionsEx;
 
@@ -65,7 +66,7 @@ public class iChat extends JavaPlugin {
 	
 	// Logging and Config
 	public Logger log;
-	Configuration config;
+	FileConfiguration newConfig;
 	
 	// API
 	public iChatAPI API;
@@ -82,23 +83,15 @@ public class iChat extends JavaPlugin {
 		pm = getServer().getPluginManager();
 		// Workaround for pre/post 1192
 		log = getServer().getLogger();
-		config = new Configuration(new File(getDataFolder(), "config.yml"));
+		newConfig = this.getConfig();
 		
 		setupPermissions();
-		
-		// Create default config if it doesn't exist.
-		if (!(new File(getDataFolder(), "config.yml")).exists()) {
-			defaultConfig();
-		}
+
 		loadConfig();
 		
 		info = new VariableHandler(this);
-		info.loadConfig();
 		
 		connectList = new HashMap<String, Long>();
-		for (Player player : getServer().getOnlinePlayers()) {
-			info.addPlayer(player);
-		}
 		
 		// Register events
 		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
@@ -112,21 +105,21 @@ public class iChat extends JavaPlugin {
 	}
 	
 	private void loadConfig() {
-		config.load();
-		iNameFormat = config.getString("iname-format", iNameFormat);
-		chatFormat = config.getString("message-format", chatFormat);
-		dateFormat = config.getString("date-format", dateFormat);
-		meFormat = config.getString("me-format", meFormat);
-		handleMe = config.getBoolean("handle-me", handleMe);
-	}
-	
-	private void defaultConfig() {
-		config.setProperty("iname-format", iNameFormat);
-		config.setProperty("message-format", chatFormat);
-		config.setProperty("date-format", dateFormat);
-		config.setProperty("me-format", meFormat);
-		config.setProperty("handle-me", handleMe);
-		config.save();
+		this.reloadConfig();
+		newConfig.options().copyDefaults(true);
+		iNameFormat = newConfig.getString("iname-format");
+		chatFormat = newConfig.getString("message-format");
+		dateFormat = newConfig.getString("date-format");
+		meFormat = newConfig.getString("me-format");
+		handleMe = newConfig.getBoolean("handle-me");
+		// Why the hell won't this.saveConfig() work? IT DOES THE SAME THING AS THIS!
+		try {
+			File sFile = new File(this.getDataFolder(), "config.yml");
+			if (!sFile.exists())
+				newConfig.save(sFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
     private void setupPermissions() {
@@ -186,9 +179,6 @@ public class iChat extends JavaPlugin {
 		if (args[0].equalsIgnoreCase("reload")) {
 			loadConfig();
 			info.loadConfig();
-			for (Player player : getServer().getOnlinePlayers()) {
-				info.addPlayer(player);
-			}
 			sender.sendMessage("[iChat] Config Reloaded");
 			return true;
 		} else if (args[0].equalsIgnoreCase("debug")) {
