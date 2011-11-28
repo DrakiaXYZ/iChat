@@ -177,9 +177,9 @@ public class VariableHandler {
 	 * DEBUG
 	 */
 	public void debug() {
-		ichat.log.info("[iChat::ih::debug]");
+		ichat.log.info("[iChat::vh::debug]");
 		// Print out all group variables
-		ichat.log.info("[iChat::ih::debug] Groups");
+		ichat.log.info("[iChat::vh::debug] Groups");
 		for (String group : groupVars.keySet()) {
 			ichat.log.info("  " + group);
 			HashMap<String, String> gVars = groupVars.get(group);
@@ -189,7 +189,7 @@ public class VariableHandler {
 		}
 		
 		// Print out all user variables
-		ichat.log.info("[iChat::ih::debug] Users");
+		ichat.log.info("[iChat::vh::debug] Users");
 		for (String user : userVars.keySet()) {
 			ichat.log.info("  " + user);
 			HashMap<String, String> uVars = userVars.get(user);
@@ -199,7 +199,7 @@ public class VariableHandler {
 		}
 		
 		// Print out all player variables
-		ichat.log.info("[iChat::ih::debug] Players");
+		ichat.log.info("[iChat::vh::debug] Players");
 		for (String player : playerVars.keySet()) {
 			ichat.log.info("  " + player);
 			HashMap<String, String> pVars = playerVars.get(player);
