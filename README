@@ -103,6 +103,8 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.4.5]
+  - Fixed reload command not reloading config properly
 [Version 2.4.4]
   - Updated to new FileConfiguration class
   - Fixed bypass exploit for colors in messages

@@ -19,8 +19,6 @@ package net.TheDgtl.iChat;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -105,21 +103,15 @@ public class iChat extends JavaPlugin {
 	}
 	
 	private void loadConfig() {
-		this.reloadConfig();
+		reloadConfig();
+		newConfig = this.getConfig();
 		newConfig.options().copyDefaults(true);
 		iNameFormat = newConfig.getString("iname-format");
 		chatFormat = newConfig.getString("message-format");
 		dateFormat = newConfig.getString("date-format");
 		meFormat = newConfig.getString("me-format");
 		handleMe = newConfig.getBoolean("handle-me");
-		// Why the hell won't this.saveConfig() work? IT DOES THE SAME THING AS THIS!
-		try {
-			File sFile = new File(this.getDataFolder(), "config.yml");
-			if (!sFile.exists())
-				newConfig.save(sFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		saveConfig();
 	}
 	
     private void setupPermissions() {
