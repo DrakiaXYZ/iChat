@@ -26,8 +26,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-//import org.bukkit.event.CustomEventListener;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -59,9 +57,6 @@ public class iChat extends JavaPlugin {
     // Player Connect Time List
     public HashMap<String, Long> connectList;
 	
-	// Listeners
-	private playerListener pListener = new playerListener(this);
-	
 	// Logging and Config
 	public Logger log;
 	FileConfiguration newConfig;
@@ -92,8 +87,7 @@ public class iChat extends JavaPlugin {
 		connectList = new HashMap<String, Long>();
 		
 		// Register events
-		pm.registerEvent(Event.Type.PLAYER_CHAT, pListener, Event.Priority.Normal, this);
-		pm.registerEvent(Event.Type.PLAYER_COMMAND_PREPROCESS, pListener, Event.Priority.Normal, this);
+		pm.registerEvents(new playerListener(this), this);
 		
 		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
 	}

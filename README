@@ -105,6 +105,7 @@ ichat.reload - Allow reloading the iChat config
 =============
 [Version 2.5.0]
   - Added world variables for further customization
+  - Updated event handling to 1.1-R3 spec
 [Version 2.4.5]
   - Fixed reload command not reloading config properly
 [Version 2.4.4]

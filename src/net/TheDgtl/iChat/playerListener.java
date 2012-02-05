@@ -19,13 +19,12 @@ package net.TheDgtl.iChat;
  */
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerQuitEvent;
 
-public class playerListener extends PlayerListener {
+public class playerListener implements Listener {
 	// Use this for permissions checking.
 	iChat ichat;
 	
@@ -33,7 +32,7 @@ public class playerListener extends PlayerListener {
 		this.ichat = ichat;
 	}
 	
-	@Override
+	@EventHandler
 	public void onPlayerChat(PlayerChatEvent event) {
 		if (event.isCancelled()) return;
 		Player player = event.getPlayer();
@@ -44,7 +43,7 @@ public class playerListener extends PlayerListener {
 		event.setFormat(ichat.API.parseChat(player, message, ichat.chatFormat));
 	}
 	
-	@Override
+	@EventHandler
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		if (!ichat.handleMe) return;
 		if (event.isCancelled()) return;
@@ -66,17 +65,5 @@ public class playerListener extends PlayerListener {
 			ichat.getServer().broadcastMessage(formatted);
 			event.setCancelled(true);
 		}
-	}
-	
-	@Override
-	public void onPlayerJoin(PlayerJoinEvent event) {
-		Player p = event.getPlayer();
-		ichat.connectList.put(p.getName(), System.currentTimeMillis() / 1000L);
-	}
-	
-	@Override
-	public void onPlayerQuit(PlayerQuitEvent event) {
-		Player p = event.getPlayer();
-		ichat.connectList.remove(p.getName());
 	}
 }
