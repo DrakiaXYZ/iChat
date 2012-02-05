@@ -21,6 +21,9 @@ public class VariableHandler {
 	private HashMap<String, HashMap<String, HashMap<String, String>>> wGroupVars = new HashMap<String, HashMap<String, HashMap<String, String>>>();
 	private HashMap<String, HashMap<String, HashMap<String, String>>> wUserVars = new HashMap<String, HashMap<String, HashMap<String, String>>>();
 	
+	// Values loaded from config -- World Variables
+	private HashMap<String, HashMap<String, String>> worldVars = new HashMap<String, HashMap<String, String>>();
+	
 	// Dynamically assigned on connect/reload
 	private HashMap<String, HashMap<String, String>> playerVars = new HashMap<String, HashMap<String, String>>();
 
@@ -60,6 +63,7 @@ public class VariableHandler {
 		playerVars.clear();
 		wGroupVars.clear();
 		wUserVars.clear();
+		worldVars.clear();
 		
 		reloadConfig();
 		
@@ -76,20 +80,29 @@ public class VariableHandler {
 				continue;
 			}
 			
-			ConfigurationSection groups = newConfig.getConfigurationSection(key + ".groups");
-			if (groups != null) {
-				HashMap<String, HashMap<String, String>> wGroups = new HashMap<String, HashMap<String, String>>();
-				loadNodes(groups, wGroups);
-				wGroupVars.put(key, wGroups);
+			// Loop through world nodes, "groups" and "users" are special cases, everything else is a world variable
+			HashMap<String, String> wVars = new HashMap<String, String>();
+			ConfigurationSection world = newConfig.getConfigurationSection(key);
+			for (String wKey : world.getKeys(false)) {
+				if (wKey.equals("groups")) {
+					ConfigurationSection groups = world.getConfigurationSection("groups");
+					HashMap<String, HashMap<String, String>> wGroups = new HashMap<String, HashMap<String, String>>();
+					loadNodes(groups, wGroups);
+					wGroupVars.put(key.toLowerCase(), wGroups);
+					continue;
+				}
+				if (wKey.equals("users")) {
+					ConfigurationSection users = world.getConfigurationSection("users");
+					HashMap<String, HashMap<String, String>> wUsers = new HashMap<String, HashMap<String, String>>();
+					loadNodes(users, wUsers);
+					wUserVars.put(key.toLowerCase(), wUsers);
+					continue;
+				}
+				String value = world.getString(wKey);
+				if (value == null) continue;
+				wVars.put(wKey.toLowerCase(), value);
 			}
-			
-			ConfigurationSection users = newConfig.getConfigurationSection(key + ".users");
-			if (users != null) {
-				HashMap<String, HashMap<String, String>> wUsers = new HashMap<String, HashMap<String, String>>();
-				loadNodes(users, wUsers);
-				wUserVars.put(key, wUsers);
-			}
-			
+			worldVars.put(key.toLowerCase(), wVars);
 		}
 	}
 	
@@ -97,6 +110,14 @@ public class VariableHandler {
 		HashMap<String, String> tmpList = new HashMap<String, String>();
 		
 		String group = ichat.API.getGroup(player);
+		String world = player.getWorld().getName().toLowerCase();
+		
+		// Check if the world the player is in has variables
+		HashMap<String, String> wVars = worldVars.get(world);
+		if (wVars != null && !wVars.isEmpty()) {
+			tmpList.putAll(wVars);
+		}
+		
 		if (group != null && !group.isEmpty()) {
 			group = group.toLowerCase();
 			HashMap<String, String> gVars = groupVars.get(group);
@@ -104,9 +125,9 @@ public class VariableHandler {
 				tmpList.putAll(gVars);
 			
 			// Check if this group has world-specific vars
-			HashMap<String, HashMap<String, String>> wVars = wGroupVars.get(player.getWorld().getName());
-			if (wVars != null) {
-				HashMap<String, String> wgVars = wVars.get(group);
+			HashMap<String, HashMap<String, String>> worlds = wGroupVars.get(world);
+			if (worlds != null) {
+				HashMap<String, String> wgVars = worlds.get(group);
 				if (wgVars != null)
 					tmpList.putAll(wgVars);
 			}
@@ -116,9 +137,9 @@ public class VariableHandler {
 		if (uVars != null)
 			tmpList.putAll(uVars);
 		
-		HashMap<String, HashMap<String, String>> wVars = wUserVars.get(player.getWorld().getName());
-		if (wVars != null) {
-			HashMap<String, String> wuVars = wVars.get(player.getName().toLowerCase());
+		HashMap<String, HashMap<String, String>> worlds = wUserVars.get(world);
+		if (worlds != null) {
+			HashMap<String, String> wuVars = worlds.get(player.getName().toLowerCase());
 			if (wuVars != null)
 				tmpList.putAll(wuVars);
 		}

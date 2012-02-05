@@ -2,4 +2,4 @@ handle-me: true
 date-format: HH:mm:ss
 message-format: '+iname: +message'
 me-format: '* +name +message'
-iname-format: '[+prefix+group+suffix&f] +displayname'
+iname-format: '+{wName}[+prefix+group+suffix&f] +displayname'

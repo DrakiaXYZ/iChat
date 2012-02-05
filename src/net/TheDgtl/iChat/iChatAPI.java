@@ -51,6 +51,8 @@ public class iChatAPI {
 		
 		 if (world.contains("_nether"))
 			 world = world.replace("_nether", " Nether");
+		 if (world.contains("_the_end"))
+			 world = world.replace("_the_end", " End");
 		
 		// Timestamp support
 		Date now = new Date();
