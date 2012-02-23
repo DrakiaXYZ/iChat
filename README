@@ -103,6 +103,8 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.5.1]
+  - Quick update to event handling for 1.1-R5 spec
 [Version 2.5.0]
   - Added world variables for further customization
   - Updated event handling to 1.1-R3 spec
