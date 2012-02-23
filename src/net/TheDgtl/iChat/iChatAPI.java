@@ -16,7 +16,8 @@ import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 import com.platymuus.bukkit.permissions.Group;
 
-import de.bananaco.permissions.interfaces.PermissionSet;
+import de.bananaco.bpermissions.api.ApiLayer;
+import de.bananaco.bpermissions.api.util.CalculableType;
 
 public class iChatAPI {
 	private iChat ichat;
@@ -125,7 +126,7 @@ public class iChatAPI {
      */
     public String getRawInfo(Player player, String info) {
     	if (info.equals("group")) {
-    		if (ichat.bPermMan != null) {
+    		if (ichat.bPerm != null) {
     			return getbPermGroup(player);
     		}
     		if (ichat.pbPlug != null) {
@@ -225,10 +226,9 @@ public class iChatAPI {
     }
     
     private String getbPermGroup(Player player) {
-    	PermissionSet ps = ichat.bPermMan.getPermissionSet(player.getWorld().getName());
-    	List<String> groups = ps.getGroups(player.getName());
-    	if (groups.size() == 0) return "";
-    	return groups.get(0);
+    	String[] groups = ApiLayer.getGroups(player.getWorld().getName(), CalculableType.USER, player.getName());
+    	if (groups.length == 0) return "";
+    	return groups[0];
     }
     
     private String getPermBGroup(Player player) {

@@ -36,8 +36,6 @@ import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
-import de.bananaco.permissions.worlds.WorldPermissionsManager;
-
 public class iChat extends JavaPlugin {
 	public PluginManager pm;
 	
@@ -45,7 +43,7 @@ public class iChat extends JavaPlugin {
     public PermissionHandler permissions;
     public boolean permissions3;
     // bPermissions (PermissionSet)
-    public WorldPermissionsManager bPermMan;
+    public Plugin bPerm;
     // PermissionsBukkit (Group)
     public PermissionsPlugin pbPlug;
     // PEX (PermissionUser)
@@ -110,7 +108,7 @@ public class iChat extends JavaPlugin {
 	
     private void setupPermissions() {
     	// Setup already
-    	if (permissions != null || bPermMan != null || pbPlug != null || pexPlug != null) return;
+    	if (permissions != null || bPerm != null || pbPlug != null || pexPlug != null) return;
     	Plugin tmp = null;
     	PluginManager pm = getServer().getPluginManager();
     	
@@ -118,7 +116,7 @@ public class iChat extends JavaPlugin {
     	tmp = pm.getPlugin("bPermissions");
     	if (tmp != null && tmp.isEnabled()) {
     		log.info("[iChat] Found bPermissions v" + tmp.getDescription().getVersion());
-    		bPermMan = de.bananaco.permissions.Permissions.getWorldPermissionsManager();
+    		bPerm = tmp;
     		return;
     	}
     	
