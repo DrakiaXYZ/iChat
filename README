@@ -103,6 +103,8 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.5.3]
+  - Updated iChatMeEvent for new event system
 [Version 2.5.2]
   - Updated for bPermissions 2.9.0 (Requires 2.8.0 or later)
 [Version 2.5.1]
