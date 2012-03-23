@@ -103,6 +103,9 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.5.4]
+  - Added new &k color code
+  - Color codes now case insensitive
 [Version 2.5.3]
   - Updated iChatMeEvent for new event system
 [Version 2.5.2]
