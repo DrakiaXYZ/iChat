@@ -65,7 +65,7 @@ public class iChatAPI {
 		
 		// Add coloring if the player has permission
 		if (!checkPermissions(p, "ichat.color")) {
-			msg = msg.replaceAll("(&+([a-f0-9]))", "");
+			msg = msg.replaceAll("(&+([a-fk-or0-9]))", "");
 		}
 		
 		String format = parseVars(chatFormat, p);
