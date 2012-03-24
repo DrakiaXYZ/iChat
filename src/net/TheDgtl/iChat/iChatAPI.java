@@ -65,7 +65,7 @@ public class iChatAPI {
 		
 		// Add coloring if the player has permission
 		if (!checkPermissions(p, "ichat.color")) {
-			msg = msg.replaceAll("(&+([a-fA-FkK0-9]))", "");
+			msg = msg.replaceAll("(&+([a-fA-Fk-oK-OrR0-9]))", "");
 		}
 		
 		String format = parseVars(chatFormat, p);
@@ -197,7 +197,7 @@ public class iChatAPI {
 	}
 	
     public String addColor(String string) {
-        return string.replaceAll("(&([a-fA-FkK0-9]))", "\u00A7$2");
+        return string.replaceAll("(&([a-fA-Fk-oK-OrR0-9]))", "\u00A7$2");
     }
     
     public Boolean checkPermissions(Player player, String node) {
