@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 public class VariableHandler {
 	private iChat ichat;
-	private YamlConfiguration newConfig;
+	private dYamlConfiguration newConfig;
 	
 	// Values loaded from config -- Global
 	private HashMap<String, HashMap<String, String>> groupVars = new HashMap<String, HashMap<String, String>>();
@@ -41,7 +41,7 @@ public class VariableHandler {
 		// Variables exists, don't touch it!
 		if (vFile.exists()) return;
 		// Copy defaults to variables.yml
-		newConfig = YamlConfiguration.loadConfiguration(vFile);
+		newConfig = dYamlConfiguration.loadConfiguration(vFile);
 		newConfig.options().copyDefaults(true);
 		InputStream defConfigStream = iChat.class.getClassLoader().getResourceAsStream("variables.yml");
 		if (defConfigStream != null) {
@@ -173,7 +173,7 @@ public class VariableHandler {
 			ichat.log.info("[iChat] variables.yml does not exist. Please create it.");
 			return;
 		}
-		newConfig = YamlConfiguration.loadConfiguration(vFile);
+		newConfig = dYamlConfiguration.loadConfiguration(vFile);
 	}
 	
 	/*

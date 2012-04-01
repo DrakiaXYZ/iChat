@@ -103,6 +103,9 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.5.6]
+  - Implemented my own dYamlConfiguration class for loading variables.yml, this is required as Bukkit's config class lacks Unicode support
+  - Use Bukkit's implementation of addColor, as it's faster than the RegEx I was using
 [Version 2.5.5]
   - Color the rest of the "should not exist" color spectrum
 [Version 2.5.4]

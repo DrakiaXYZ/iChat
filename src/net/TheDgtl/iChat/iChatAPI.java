@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
@@ -197,7 +198,7 @@ public class iChatAPI {
 	}
 	
     public String addColor(String string) {
-        return string.replaceAll("(&([a-fA-Fk-oK-OrR0-9]))", "\u00A7$2");
+    	return ChatColor.translateAlternateColorCodes('&', string);
     }
     
     public Boolean checkPermissions(Player player, String node) {
