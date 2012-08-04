@@ -78,8 +78,8 @@ public class iChatAPI {
 		}
 		
 		// Order is important, this allows us to use all variables in the suffix and prefix! But no variables in the message
-		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+displayname,+d", "+iname,+in", "+message,+m"};
-		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, p.getName(), p.getDisplayName(), iName, msg };
+		String[] search = new String[] {"+suffix,+s", "+prefix,+p", "+group,+g", "+healthbar,+hb", "+health,+h", "+world,+w", "+time,+t", "+name,+n", "+displayname,+d", "+iname,+in", "+message", "+m"};
+		String[] replace = new String[] { suffix, prefix, group, healthbar, health, world, time, p.getName(), p.getDisplayName(), iName, "+m", msg };
 		return replaceVars(format, search, replace);
 	}
 	

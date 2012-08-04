@@ -106,7 +106,7 @@ public class VariableHandler {
 		}
 	}
 	
-	public void addPlayer(Player player) {
+	public synchronized void addPlayer(Player player) {
 		HashMap<String, String> tmpList = new HashMap<String, String>();
 		
 		String group = ichat.API.getGroup(player);
@@ -147,11 +147,11 @@ public class VariableHandler {
 		playerVars.put(player.getName().toLowerCase(), tmpList);
 	}
 	
-	public void removePlayer(Player player) {
+	public synchronized void removePlayer(Player player) {
 		playerVars.remove(player.getName().toLowerCase());
 	}
 	
-	public String getKey(Player player, String key) {
+	public synchronized String getKey(Player player, String key) {
 		HashMap<String, String> pVars = playerVars.get(player.getName().toLowerCase());
 		if (pVars == null) return "";
 		String var = pVars.get(key.toLowerCase());
@@ -159,7 +159,7 @@ public class VariableHandler {
 		return var;
 	}
 	
-	public String getKey(String group, String key) {
+	public synchronized String getKey(String group, String key) {
 		HashMap<String, String> gVars = groupVars.get(group.toLowerCase());
 		if (gVars == null) return "";
 		String var = gVars.get(key.toLowerCase());
