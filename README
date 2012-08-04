@@ -92,7 +92,9 @@ handle-me - Whether to handle /me commands (Default: true)
 =============
  Permissions
 =============
-ichat.color - Allow this group/user to use color in their chat messages.
+ichat.format.color - Allow this group/user to use color in their chat messages.
+ichat.format.formatting - Allow this group/user to use formatting in their chat messages.
+ichat.color - Allow this group/user to use both color and chat formatting in their chat messages (Legacy)
 ichat.reload - Allow reloading the iChat config
 
 =============
@@ -104,6 +106,7 @@ ichat.reload - Allow reloading the iChat config
   Changes
 =============
 [Version 2.5.8]
+  - Add ichat.format.color/formatting permissions for more customization
   - Switch to the new "AsyncPlayerChatEvent"
   - Thread-safe VariableHandler
   - Build against 1.3.1

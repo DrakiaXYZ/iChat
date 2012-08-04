@@ -66,7 +66,22 @@ public class iChatAPI {
 		
 		// Add coloring if the player has permission
 		if (!checkPermissions(p, "ichat.color")) {
-			msg = msg.replaceAll("(&+([a-fA-Fk-oK-OrR0-9]))", "");
+			boolean hasColor = true;
+			boolean hasFormat = true;
+			// Strip color if they lack permission
+			if (!checkPermissions(p, "ichat.format.color")) {
+				msg = msg.replaceAll("(&+([a-fA-F0-9]))", "");
+				hasColor = false;
+			}
+			// Strip formatting if they lack permission
+			if (!checkPermissions(p, "ichat.format.formatting")) {
+				msg = msg.replaceAll("(&+([k-oK-OrR]))", "");
+				hasFormat = false;
+			}
+			// Legacy: Strip all if they lack any permission
+			if (!hasColor && !hasFormat) {
+				msg = msg.replaceAll("(&+([a-fA-Fk-oK-OrR0-9]))", "");
+			}
 		}
 		
 		String format = parseVars(chatFormat, p);
