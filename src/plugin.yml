@@ -7,4 +7,4 @@ commands:
   ichat:
     description: Used to reload the plugin.
     usage: /<command> reload - Used to reload iChat's config
-softdepend: [bPermissions, Permissions, PermissionsBukkit, PermissionsEx]
+softdepend: [bPermissions, Permissions, PermissionsBukkit, PermissionsEx, GroupManager]
