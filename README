@@ -110,6 +110,7 @@ ichat.reload - Allow reloading the iChat config
   - Revert to using PlayerChatEvent as Bukkit itself is not thread safe
   - Add /me permission/config
   - Hopefully resolve NPE in loadConfig of VH
+  - Add support for GroupManager
 [Version 2.5.8]
   - Add ichat.format.color/formatting permissions for more customization
   - Switch to the new "AsyncPlayerChatEvent"

@@ -22,6 +22,7 @@ package net.TheDgtl.iChat;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import org.anjocaido.groupmanager.GroupManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -48,6 +49,8 @@ public class iChat extends JavaPlugin {
     public PermissionsPlugin pbPlug;
     // PEX (PermissionUser)
     public PermissionsEx pexPlug;
+    // GroupManader
+    public GroupManager gMan;
 
     // Vairable Handler
     public VariableHandler info;
@@ -110,7 +113,7 @@ public class iChat extends JavaPlugin {
 	
     private void setupPermissions() {
     	// Setup already
-    	if (permissions != null || bPerm != null || pbPlug != null || pexPlug != null) return;
+    	if (permissions != null || bPerm != null || pbPlug != null || pexPlug != null || gMan != null) return;
     	Plugin tmp = null;
     	PluginManager pm = getServer().getPluginManager();
     	
@@ -135,6 +138,14 @@ public class iChat extends JavaPlugin {
     	if (tmp != null && tmp.isEnabled()) {
     		log.info("[iChat] Found PermissionsEx v" + tmp.getDescription().getVersion());
     		pexPlug = (PermissionsEx)tmp;
+    		return;
+    	}
+    	
+    	// Then GroupManager
+    	tmp = pm.getPlugin("GroupManager");
+    	if (tmp != null && tmp.isEnabled()) {
+    		log.info("[iChat] Found GroupManager v" + tmp.getDescription().getVersion());
+    		gMan = (GroupManager)tmp;
     		return;
     	}
     	

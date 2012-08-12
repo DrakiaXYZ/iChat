@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -151,6 +152,9 @@ public class iChatAPI {
     		if (ichat.pexPlug != null) {
     			return getPexGroup(player);
     		}
+    		if (ichat.gMan != null) {
+    			return getGManGroup(player);
+    		}
     		if (ichat.permissions != null) {
     			return getPermissionsGroup(player);
     		}
@@ -261,6 +265,13 @@ public class iChatAPI {
     	PermissionGroup[] groups = user.getGroups(player.getWorld().getName());
     	if (groups.length == 0) return "";
     	return groups[0].getName();
+    }
+    
+    private String getGManGroup(Player player) {
+    	if (!ichat.gMan.isEnabled()) return "";
+    	AnjoPermissionsHandler handler = ichat.gMan.getWorldsHolder().getWorldPermissions(player);
+    	if (handler == null) return "";
+    	return handler.getGroup(player.getName());
     }
     
     private String getSuperPermGroup(Player player) {
