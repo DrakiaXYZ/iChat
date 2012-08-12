@@ -83,6 +83,10 @@ public class VariableHandler {
 			// Loop through world nodes, "groups" and "users" are special cases, everything else is a world variable
 			HashMap<String, String> wVars = new HashMap<String, String>();
 			ConfigurationSection world = newConfig.getConfigurationSection(key);
+			if (world == null) {
+				ichat.log.warning("[iChat::vh::loadConfig] There was an error loading configuration. world was null");
+				continue;
+			}
 			for (String wKey : world.getKeys(false)) {
 				if (wKey.equals("groups")) {
 					ConfigurationSection groups = world.getConfigurationSection("groups");
@@ -106,7 +110,7 @@ public class VariableHandler {
 		}
 	}
 	
-	public synchronized void addPlayer(Player player) {
+	public void addPlayer(Player player) {
 		HashMap<String, String> tmpList = new HashMap<String, String>();
 		
 		String group = ichat.API.getGroup(player);
@@ -147,11 +151,11 @@ public class VariableHandler {
 		playerVars.put(player.getName().toLowerCase(), tmpList);
 	}
 	
-	public synchronized void removePlayer(Player player) {
+	public void removePlayer(Player player) {
 		playerVars.remove(player.getName().toLowerCase());
 	}
 	
-	public synchronized String getKey(Player player, String key) {
+	public String getKey(Player player, String key) {
 		HashMap<String, String> pVars = playerVars.get(player.getName().toLowerCase());
 		if (pVars == null) return "";
 		String var = pVars.get(key.toLowerCase());
@@ -159,7 +163,7 @@ public class VariableHandler {
 		return var;
 	}
 	
-	public synchronized String getKey(String group, String key) {
+	public String getKey(String group, String key) {
 		HashMap<String, String> gVars = groupVars.get(group.toLowerCase());
 		if (gVars == null) return "";
 		String var = gVars.get(key.toLowerCase());
@@ -180,6 +184,10 @@ public class VariableHandler {
 	 * Load the nodes from root into map
 	 */
 	private void loadNodes(ConfigurationSection root, HashMap<String, HashMap<String, String>> map) {
+		if (root == null) {
+			ichat.log.warning("[iChat::vh::loadNodes] There was an error loading configuration nodes");
+			return;
+		}
 		for (String key : root.getKeys(false)) {
 			HashMap<String, String> tmpList = new HashMap<String, String>();
 			ConfigurationSection vars = root.getConfigurationSection(key);

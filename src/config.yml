@@ -3,3 +3,4 @@ date-format: HH:mm:ss
 message-format: '+iname: +message'
 me-format: '* +name +message'
 iname-format: '+{wName}[+prefix+group+suffix&f] +displayname'
+me-permissions: false

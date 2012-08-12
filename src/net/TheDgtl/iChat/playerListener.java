@@ -21,7 +21,7 @@ package net.TheDgtl.iChat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 public class playerListener implements Listener {
@@ -33,7 +33,7 @@ public class playerListener implements Listener {
 	}
 	
 	@EventHandler
-	public void onAsnycPlayerChat(AsyncPlayerChatEvent event) {
+	public void onPlayerChat(PlayerChatEvent event) {
 		if (event.isCancelled()) return;
 		Player player = event.getPlayer();
 		String message = event.getMessage();
@@ -52,6 +52,10 @@ public class playerListener implements Listener {
 		if (command == null) return;
 		
 		if (command.toLowerCase().startsWith("/me ")) {
+			if (ichat.mePerm && !player.hasPermission("ichat.me")) {
+				event.setCancelled(true);
+				return;
+			}
 			ichat.info.addPlayer(player);
 			String message = command.substring(command.indexOf(" ")).trim();
 			String formatted = ichat.API.parseChat(player, message, ichat.meFormat);

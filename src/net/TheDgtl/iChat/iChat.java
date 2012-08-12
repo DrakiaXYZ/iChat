@@ -68,6 +68,7 @@ public class iChat extends JavaPlugin {
 	public String meFormat = "* +name +message";
 	public String dateFormat = "HH:mm:ss";
 	public boolean handleMe = true;
+	public boolean mePerm = false;
 	
 	public void onEnable() {
 		API = new iChatAPI(this);
@@ -103,6 +104,7 @@ public class iChat extends JavaPlugin {
 		dateFormat = newConfig.getString("date-format");
 		meFormat = newConfig.getString("me-format");
 		handleMe = newConfig.getBoolean("handle-me");
+		mePerm = newConfig.getBoolean("me-permissions");
 		saveConfig();
 	}
 	
