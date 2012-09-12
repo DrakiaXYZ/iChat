@@ -227,6 +227,44 @@ public class VariableHandler {
 			}
 		}
 		
+		// Print all world-specific group variables
+		ichat.log.info("[iChat::vh::debug] World-Groups");
+		for (String world : wGroupVars.keySet()) {
+			ichat.log.info("  " + world);
+			HashMap<String, HashMap<String, String>> groups = wGroupVars.get(world);
+			for (String group : groups.keySet()) {
+				ichat.log.info("    " + group);
+				HashMap<String, String> gVars = groups.get(group);
+				for (String key : gVars.keySet()) {
+					ichat.log.info("      " + key + " => " + gVars.get(key));
+				}
+			}
+		}
+		
+		// Print all world-specific user variables
+		ichat.log.info("[iChat::vh::debug] World-Players");
+		for (String world : wUserVars.keySet()) {
+			ichat.log.info("  " + world);
+			HashMap<String, HashMap<String, String>> users = wUserVars.get(world);
+			for (String user : users.keySet()) {
+				ichat.log.info("    " + user);
+				HashMap<String, String> uVars = users.get(user);
+				for (String key : uVars.keySet()) {
+					ichat.log.info("      " + key + " => " + uVars.get(key));
+				}
+			}
+		}
+		
+		// Print all world variables
+		ichat.log.info("[iChat::vh::debug] World Variables");
+		for (String world : worldVars.keySet()) {
+			ichat.log.info("  " + world);
+			HashMap<String, String> wVars = worldVars.get(world);
+			for (String key : wVars.keySet()) {
+				ichat.log.info("    " + key + " => " + wVars.get(key));
+			}
+		}
+		
 		// Print out all player variables
 		ichat.log.info("[iChat::vh::debug] Players");
 		for (String player : playerVars.keySet()) {

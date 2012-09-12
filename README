@@ -16,7 +16,7 @@ Source: https://github.com/TheDgtl/iChat
 =============
  Features
 =============
-Supports Permissions (Both 2.0 and 2.1), and SuperPerms handlers (PermissionsBukkit, bPermissions, and PermissionsEx).
+Supports Permissions (Both 2.0 and 2.1), and SuperPerms handlers (PermissionsBukkit, bPermissions, GroupManager, and PermissionsEx).
 Allows you to specify a prefix/suffix/variable for users and groups.
 A user-specific prefix/suffix/variable will take priority over a group prefix/suffix/variable.
 Unlimited amount of custom variables for use in chat format.
@@ -88,6 +88,7 @@ message-format - The format used for basic chat (Default: '+iname: +message')
 date-format - The format used for +date (Default: 'HH:mm:ss')
 me-format - The format used for /me commands (Default: '* +name +message')
 handle-me - Whether to handle /me commands (Default: true)
+me-permissions - Whether to require ichat.me to use /me
 
 =============
  Permissions
@@ -105,6 +106,8 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.5.10]
+  - Added more output to /debug
 [Version 2.5.9]
   - Revert changes to VariableHandler
   - Revert to using PlayerChatEvent as Bukkit itself is not thread safe

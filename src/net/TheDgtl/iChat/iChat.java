@@ -19,6 +19,7 @@ package net.TheDgtl.iChat;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -76,16 +77,13 @@ public class iChat extends JavaPlugin {
 	public void onEnable() {
 		API = new iChatAPI(this);
 		pm = getServer().getPluginManager();
-		// Workaround for pre/post 1192
 		log = getServer().getLogger();
 		newConfig = this.getConfig();
 		
 		setupPermissions();
-
 		loadConfig();
 		
 		info = new VariableHandler(this);
-		
 		connectList = new HashMap<String, Long>();
 		
 		// Register events
@@ -180,6 +178,18 @@ public class iChat extends JavaPlugin {
 			return true;
 		} else if (args[0].equalsIgnoreCase("debug")) {
 			info.debug();
+			
+			// Print config informations
+			log.info("[ichat::debug]");
+			log.info("iNameFormat = " + newConfig.getString("iname-format"));
+			log.info("chatFormat = " + newConfig.getString("message-format"));
+			log.info("dateFormat = " + newConfig.getString("date-format"));
+			log.info("meFormat = " + newConfig.getString("me-format"));
+			log.info("handleMe = " + newConfig.getBoolean("handle-me"));
+			log.info("mePerm = " + newConfig.getBoolean("me-permissions"));
+			
+			log.info("plugins/iChat/config.yml exists: " + (new File(this.getDataFolder(), "config.yml")).exists());
+			log.info("plugins/iChat/variables.yml exists: " + (new File(this.getDataFolder(), "variables.yml")).exists());
 			return true;
 		}
 		return false;
