@@ -106,6 +106,12 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.6.0]
+  - Implemented the AsyncPlayerChatEvent.
+  - Resolved issues with interaction between iChat and plugins such as Factions.
+  - More strict caching of data
+  - Implemented a time-based cache refresh. This is due to not being able to make the calls I require in an ASync event. 
+  - The refresh rate of the cache is configurable in the config.yml. It is not recommended to set this any lower than 100 ticks (5 seconds).
 [Version 2.5.10]
   - Added more output to /debug
 [Version 2.5.9]

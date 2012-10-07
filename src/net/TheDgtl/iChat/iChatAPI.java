@@ -40,7 +40,7 @@ public class iChatAPI {
 	
 	public String parseChat(Player p, String msg, String chatFormat, Boolean parseName) {
 		// Variables we can use in a message
-		String group = getGroup(p);
+		String group = ichat.info.getGroup(p);
 		String prefix = getPrefix(p);
 		String suffix = getSuffix(p);
 		

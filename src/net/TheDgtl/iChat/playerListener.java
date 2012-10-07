@@ -20,9 +20,12 @@ package net.TheDgtl.iChat;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class playerListener implements Listener {
 	// Use this for permissions checking.
@@ -32,14 +35,27 @@ public class playerListener implements Listener {
 		this.ichat = ichat;
 	}
 	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerJoin(PlayerJoinEvent event) {
+		final Player p = event.getPlayer();
+		ichat.getServer().getScheduler().scheduleSyncDelayedTask(ichat, new Runnable() {
+			public void run() {
+				ichat.info.addPlayer(p);
+			}
+		}, 1);
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		ichat.info.removePlayer(event.getPlayer());
+	}
+	
 	@EventHandler
-	public void onPlayerChat(PlayerChatEvent event) {
+	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		if (event.isCancelled()) return;
 		Player player = event.getPlayer();
 		String message = event.getMessage();
 		if (message == null) return;
-		// Reload variables for this player. Have to do this until there is a PermissionChangeEvent
-		ichat.info.addPlayer(player);
 		event.setFormat(ichat.API.parseChat(player, message, ichat.chatFormat));
 	}
 	

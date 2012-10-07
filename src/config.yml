@@ -4,3 +4,4 @@ message-format: '+iname: +message'
 me-format: '* +name +message'
 iname-format: '+{wName}[+prefix+group+suffix&f] +displayname'
 me-permissions: false
+variable-refresh: 100

@@ -38,7 +38,7 @@ import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.platymuus.bukkit.permissions.PermissionsPlugin;
 
-public class iChat extends JavaPlugin {
+public class iChat extends JavaPlugin implements Runnable {
 	public PluginManager pm;
 	
     // Permissions
@@ -73,6 +73,7 @@ public class iChat extends JavaPlugin {
 	public String dateFormat = "HH:mm:ss";
 	public boolean handleMe = true;
 	public boolean mePerm = false;
+	public int refreshTimeout = 100;
 	
 	public void onEnable() {
 		API = new iChatAPI(this);
@@ -89,10 +90,14 @@ public class iChat extends JavaPlugin {
 		// Register events
 		pm.registerEvents(new playerListener(this), this);
 		
+		// Create the task for refreshing user data
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, this, 0, refreshTimeout);
+		
 		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
 	}
 	
 	public void onDisable() {
+		getServer().getScheduler().cancelAllTasks();
 		log.info("[iChat] iChat Disabled");
 	}
 	
@@ -106,7 +111,12 @@ public class iChat extends JavaPlugin {
 		meFormat = newConfig.getString("me-format");
 		handleMe = newConfig.getBoolean("handle-me");
 		mePerm = newConfig.getBoolean("me-permissions");
+		refreshTimeout = newConfig.getInt("variable-refresh");
 		saveConfig();
+		
+		// Restart update task
+		getServer().getScheduler().cancelAllTasks();
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, this, 0, refreshTimeout);
 	}
 	
     private void setupPermissions() {
@@ -193,5 +203,13 @@ public class iChat extends JavaPlugin {
 			return true;
 		}
 		return false;
+	}
+	
+	// Reload player data every x seconds (Default 5)
+	@Override
+	public void run() {
+		for (final Player p : getServer().getOnlinePlayers()) {
+			info.addPlayer(p);
+		}
 	}
 }

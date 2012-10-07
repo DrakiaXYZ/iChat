@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -24,8 +25,9 @@ public class VariableHandler {
 	// Values loaded from config -- World Variables
 	private HashMap<String, HashMap<String, String>> worldVars = new HashMap<String, HashMap<String, String>>();
 	
-	// Dynamically assigned on connect/reload
-	private HashMap<String, HashMap<String, String>> playerVars = new HashMap<String, HashMap<String, String>>();
+	// Cached player data
+	private ConcurrentHashMap<String, HashMap<String, String>> playerVars = new ConcurrentHashMap<String, HashMap<String, String>>();
+	private ConcurrentHashMap<String, String> playerGroups = new ConcurrentHashMap<String, String>();
 
 	public VariableHandler(iChat ichat) {
 		this.ichat = ichat;
@@ -123,6 +125,9 @@ public class VariableHandler {
 		}
 		
 		if (group != null && !group.isEmpty()) {
+			// Add the players cached group to the group list
+			playerGroups.put(player.getName().toLowerCase(), group);
+			
 			group = group.toLowerCase();
 			HashMap<String, String> gVars = groupVars.get(group);
 			if (gVars != null)
@@ -135,6 +140,9 @@ public class VariableHandler {
 				if (wgVars != null)
 					tmpList.putAll(wgVars);
 			}
+		} else {
+			// Remove players cached group
+			playerGroups.remove(player.getName().toLowerCase());
 		}
 		
 		HashMap<String, String> uVars = userVars.get(player.getName().toLowerCase());
@@ -152,7 +160,14 @@ public class VariableHandler {
 	}
 	
 	public void removePlayer(Player player) {
+		playerGroups.remove(player.getName().toLowerCase());
 		playerVars.remove(player.getName().toLowerCase());
+	}
+	
+	public String getGroup(Player player) {
+		String group = playerGroups.get(player.getName().toLowerCase());
+		if (group == null) return "";
+		return group;
 	}
 	
 	public String getKey(Player player, String key) {
