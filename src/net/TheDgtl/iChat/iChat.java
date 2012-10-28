@@ -20,8 +20,12 @@ package net.TheDgtl.iChat;
  */
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Logger;
+
+import net.TheDgtl.iChat.Metrics.Metrics;
+import net.krinsoft.privileges.Privileges;
 
 import org.anjocaido.groupmanager.GroupManager;
 import org.bukkit.command.Command;
@@ -41,6 +45,8 @@ import com.platymuus.bukkit.permissions.PermissionsPlugin;
 public class iChat extends JavaPlugin implements Runnable {
 	public PluginManager pm;
 	
+	// Permission Handler Name
+	private String permHandler = "";
     // Permissions
     public PermissionHandler permissions;
     public boolean permissions3;
@@ -52,6 +58,8 @@ public class iChat extends JavaPlugin implements Runnable {
     public PermissionsEx pexPlug;
     // GroupManader
     public GroupManager gMan;
+    // Privileges
+    public Privileges priv;
 
     // Vairable Handler
     public VariableHandler info;
@@ -71,6 +79,7 @@ public class iChat extends JavaPlugin implements Runnable {
 	public String chatFormat = "+iname: +message";
 	public String meFormat = "* +name +message";
 	public String dateFormat = "HH:mm:ss";
+	public Integer timeOffset = null;
 	public boolean handleMe = true;
 	public boolean mePerm = false;
 	public int refreshTimeout = 100;
@@ -94,10 +103,27 @@ public class iChat extends JavaPlugin implements Runnable {
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, this, 0, refreshTimeout);
 		
 		log.info(getDescription().getName() + " (v" + getDescription().getVersion() + ") enabled");
+		
+		// Enable MCStats Metrics
+		try {
+			Metrics metrics = new Metrics(this);
+			
+			// Setup a graph for keeping track of Permission handler user
+			Metrics.Graph phGraph = metrics.createGraph("Permission Handler");
+			phGraph.addPlotter(new Metrics.Plotter(permHandler) {
+				@Override
+				public int getValue() {
+					return 1;
+				}
+			});
+			metrics.start();
+		} catch (IOException ex) {
+			// Something went wrong. Owell.
+		}
 	}
 	
 	public void onDisable() {
-		getServer().getScheduler().cancelAllTasks();
+		getServer().getScheduler().cancelTasks(this);
 		log.info("[iChat] iChat Disabled");
 	}
 	
@@ -112,22 +138,27 @@ public class iChat extends JavaPlugin implements Runnable {
 		handleMe = newConfig.getBoolean("handle-me");
 		mePerm = newConfig.getBoolean("me-permissions");
 		refreshTimeout = newConfig.getInt("variable-refresh");
+		// Only get the timezone if it's specified
+		if (newConfig.isSet("time-offset"))
+			timeOffset = newConfig.getInt("time-offset");
+		
 		saveConfig();
 		
 		// Restart update task
-		getServer().getScheduler().cancelAllTasks();
+		getServer().getScheduler().cancelTasks(this);
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, this, 0, refreshTimeout);
 	}
 	
     private void setupPermissions() {
     	// Setup already
-    	if (permissions != null || bPerm != null || pbPlug != null || pexPlug != null || gMan != null) return;
+    	if (permissions != null || bPerm != null || pbPlug != null || pexPlug != null || gMan != null || priv != null) return;
     	Plugin tmp = null;
     	PluginManager pm = getServer().getPluginManager();
     	
     	// Check for bPerms first
     	tmp = pm.getPlugin("bPermissions");
     	if (tmp != null && tmp.isEnabled()) {
+    		permHandler = "bPermissions";
     		log.info("[iChat] Found bPermissions v" + tmp.getDescription().getVersion());
     		bPerm = tmp;
     		return;
@@ -136,6 +167,7 @@ public class iChat extends JavaPlugin implements Runnable {
     	// Check for PermBukkit next
     	tmp = pm.getPlugin("PermissionsBukkit");
     	if (tmp != null) {
+    		permHandler = "PermissionsBukkit";
     		log.info("[iChat] Found PermissionsBukkit v" + tmp.getDescription().getVersion());
     		pbPlug = (PermissionsPlugin)tmp;
     		return;
@@ -144,6 +176,7 @@ public class iChat extends JavaPlugin implements Runnable {
     	// Then PEX
     	tmp = pm.getPlugin("PermissionsEx");
     	if (tmp != null && tmp.isEnabled()) {
+    		permHandler = "PermissionsEx";
     		log.info("[iChat] Found PermissionsEx v" + tmp.getDescription().getVersion());
     		pexPlug = (PermissionsEx)tmp;
     		return;
@@ -152,20 +185,34 @@ public class iChat extends JavaPlugin implements Runnable {
     	// Then GroupManager
     	tmp = pm.getPlugin("GroupManager");
     	if (tmp != null && tmp.isEnabled()) {
+    		permHandler = "GroupManager";
     		log.info("[iChat] Found GroupManager v" + tmp.getDescription().getVersion());
     		gMan = (GroupManager)tmp;
+    		return;
+    	}
+    	
+    	// Then privileges
+    	tmp = pm.getPlugin("Privileges");
+    	if (tmp != null && tmp.isEnabled()) {
+    		permHandler = "Privileges";
+    		log.info("[iChat] Found Privileges v" + tmp.getDescription().getVersion());
+    		priv = (Privileges)tmp;
     		return;
     	}
     	
     	// Finally Permissions (This avoids catching bridges)
         tmp = pm.getPlugin("Permissions");
         if (tmp != null && tmp.isEnabled()) {
+        	permHandler = "Permissions";
         	log.info("[iChat] Found Permissions v" + tmp.getDescription().getVersion());
 	    	permissions = ((Permissions) tmp).getHandler();
 	    	permissions3 = tmp.getDescription().getVersion().startsWith("3");
+	    	if (permissions3)
+	    		permHandler = "Permissions3";
 	    	return;
         }
         
+        permHandler = "SuperPerms";
     	log.info("[iChat] Permissions not found, using SuperPerms");
     	return;
     }

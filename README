@@ -16,13 +16,14 @@ Source: https://github.com/TheDgtl/iChat
 =============
  Features
 =============
-Supports Permissions (Both 2.0 and 2.1), and SuperPerms handlers (PermissionsBukkit, bPermissions, GroupManager, and PermissionsEx).
+Supports Permissions (Both 2.0 and 2.1), and SuperPerms handlers (PermissionsBukkit, bPermissions, GroupManager, Privileges and PermissionsEx).
 Allows you to specify a prefix/suffix/variable for users and groups.
 A user-specific prefix/suffix/variable will take priority over a group prefix/suffix/variable.
 Unlimited amount of custom variables for use in chat format.
 Colors are supported in all parts of the formatting and chat text.
 Usable health bar and health amount in the formatting.
 Support for formatting of /me
+Support for timezone offsets
 
 =============
  Formatting
@@ -57,6 +58,7 @@ As of iChat 2.4.0 there have been a few changes in the way variables and groups 
   Groups  
 ==========
 As of iChat 2.4.3 native groups are supported in Permissions 2.x/3.x, PermissionsBukkit, bPermissions, and PermissionsEx.
+As of iChat 2.6.2 native groups are supported in Privileges
 
 ==========
 Variables
@@ -89,6 +91,9 @@ date-format - The format used for +date (Default: 'HH:mm:ss')
 me-format - The format used for /me commands (Default: '* +name +message')
 handle-me - Whether to handle /me commands (Default: true)
 me-permissions - Whether to require ichat.me to use /me
+time-offset - If defined, will offset the time by that many hours from GMT. This is not an offset from your current timezone.
+              For example, having the value as -1 will set the timestamps to use GMT-1. Not having this line will set the timestamps
+              to be your servers current timezone.
 
 =============
  Permissions
@@ -106,6 +111,12 @@ ichat.reload - Allow reloading the iChat config
 =============
   Changes
 =============
+[Version 2.6.2]
+  - Added support for Privileges
+  - Added support for a timezone offset
+  - Added MCStats metrics tracking
+[Version 2.6.1]
+  - Resolve issue where I accidentally cancel all plugin tasks. Oops.
 [Version 2.6.0]
   - Implemented the AsyncPlayerChatEvent.
   - Resolved issues with interaction between iChat and plugins such as Factions.

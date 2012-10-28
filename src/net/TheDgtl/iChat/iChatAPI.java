@@ -4,11 +4,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.anjocaido.groupmanager.permissions.AnjoPermissionsHandler;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
@@ -60,6 +62,13 @@ public class iChatAPI {
 		// Timestamp support
 		Date now = new Date();
 		SimpleDateFormat dateFormat = new SimpleDateFormat(ichat.dateFormat);
+		// Offset the time if needed
+		if (ichat.timeOffset != null) {
+			String offset = Integer.toString(ichat.timeOffset);
+			if (ichat.timeOffset == 0) offset = "";
+			if (ichat.timeOffset > 0) offset = "+" + offset;
+			dateFormat.setTimeZone(TimeZone.getTimeZone("GMT" + offset));
+		}
 		String time = dateFormat.format(now);
 		
 		// We're sending this to String.format, so we need to escape those pesky % symbols
@@ -157,6 +166,9 @@ public class iChatAPI {
     		}
     		if (ichat.permissions != null) {
     			return getPermissionsGroup(player);
+    		}
+    		if (ichat.priv != null) {
+    			return getPrivilegesGroup(player);
     		}
 	        return getSuperPermGroup(player);
     	}
@@ -309,6 +321,16 @@ public class iChatAPI {
 
             return group;
         }
+    }
+    
+    /*
+     * Privileges Stuff
+     */
+    private String getPrivilegesGroup(Player player) {
+    	if (!ichat.priv.isEnabled()) return "";
+    	net.krinsoft.privileges.groups.Group group = ichat.priv.getGroupManager().getGroup((OfflinePlayer)player);
+    	if (group == null || group.getName() == null) return "";
+    	return group.getName();
     }
 	
 	/*
