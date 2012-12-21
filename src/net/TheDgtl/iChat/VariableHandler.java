@@ -115,35 +115,59 @@ public class VariableHandler {
 	public void addPlayer(Player player) {
 		HashMap<String, String> tmpList = new HashMap<String, String>();
 		
-		String group = ichat.API.getGroup(player);
-		String world = player.getWorld().getName().toLowerCase();
-		
-		// Check if the world the player is in has variables
-		HashMap<String, String> wVars = worldVars.get(world);
-		if (wVars != null && !wVars.isEmpty()) {
-			tmpList.putAll(wVars);
-		}
-		
-		if (group != null && !group.isEmpty()) {
-			// Add the players cached group to the group list
-			playerGroups.put(player.getName().toLowerCase(), group);
-			
-			group = group.toLowerCase();
-			HashMap<String, String> gVars = groupVars.get(group);
-			if (gVars != null)
-				tmpList.putAll(gVars);
-			
-			// Check if this group has world-specific vars
-			HashMap<String, HashMap<String, String>> worlds = wGroupVars.get(world);
-			if (worlds != null) {
-				HashMap<String, String> wgVars = worlds.get(group);
-				if (wgVars != null)
-					tmpList.putAll(wgVars);
+		if (ichat.pexPlug == null) {
+			String group = ichat.API.getGroup(player);
+			String world = player.getWorld().getName().toLowerCase();
+			if (group != null && !group.isEmpty()) {
+				// Add the players cached group to the group list
+				playerGroups.put(player.getName().toLowerCase(), group);
+				
+				group = group.toLowerCase();
+				HashMap<String, String> gVars = groupVars.get(group);
+				if (gVars != null)
+					tmpList.putAll(gVars);
+				
+				// Check if this group has world-specific vars
+				HashMap<String, HashMap<String, String>> worlds = wGroupVars.get(world);
+				if (worlds != null) {
+					HashMap<String, String> wgVars = worlds.get(group);
+					if (wgVars != null)
+						tmpList.putAll(wgVars);
+				}
+			} else {
+				// Remove players cached group
+				playerGroups.remove(player.getName().toLowerCase());
 			}
 		} else {
-			// Remove players cached group
-			playerGroups.remove(player.getName().toLowerCase());
+			String[] group = ichat.API.getPexGroup(player);
+			String world = player.getWorld().getName().toLowerCase();
+			
+			for (String g : group)
+			{
+				if (g != null && !g.isEmpty()) {
+					// Add the players cached group to the group list
+					playerGroups.put(player.getName().toLowerCase(), g);
+					
+					g = g.toLowerCase();
+					HashMap<String, String> gVars = groupVars.get(g);
+					if (gVars != null)
+						tmpList.putAll(gVars);
+					
+					// Check if this group has world-specific vars
+					HashMap<String, HashMap<String, String>> worlds = wGroupVars.get(world);
+					if (worlds != null) {
+						HashMap<String, String> wgVars = worlds.get(g);
+						if (wgVars != null)
+							tmpList.putAll(wgVars);
+					}
+				} else {
+					// Remove players cached group
+					playerGroups.remove(player.getName().toLowerCase());
+				}
+			}
 		}
+		
+		String world = player.getWorld().getName().toLowerCase();
 		
 		HashMap<String, String> uVars = userVars.get(player.getName().toLowerCase());
 		if (uVars != null)
