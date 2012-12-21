@@ -158,9 +158,6 @@ public class iChatAPI {
     		if (ichat.pbPlug != null) {
     			return getPermBGroup(player);
     		}
-    		if (ichat.pexPlug != null) {
-    			return getPexGroup(player);
-    		}
     		if (ichat.gMan != null) {
     			return getGManGroup(player);
     		}
@@ -271,12 +268,21 @@ public class iChatAPI {
     	return groups.get(0).getName();
     }
     
-    private String getPexGroup(Player player) {
+    String[] getPexGroup(Player player) {
     	PermissionUser user = PermissionsEx.getUser(player);
-    	if (user == null) return "";
+    	if (user == null) return null;
     	PermissionGroup[] groups = user.getGroups(player.getWorld().getName());
-    	if (groups.length == 0) return "";
-    	return groups[0].getName();
+    	if (groups.length == 0) return null;
+    	
+    	int count = 0;
+    	String[] playerGroup = new String[groups.length];
+    	for (PermissionGroup g : groups)
+    	{
+    		playerGroup[count] = ChatColor.translateAlternateColorCodes('&', g.getName());
+    		count++;
+    	}
+    	
+    	return playerGroup;
     }
     
     private String getGManGroup(Player player) {
